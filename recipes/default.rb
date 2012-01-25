@@ -18,12 +18,10 @@
 # limitations under the License.
 #
 
-include_recipe "apache2"
-include_recipe %w{php::php5 php::module_mysql}
+include_recipe %w{apache2 apache2::mod_php5 apache2::mod_rewrite apache2::mod_expires}
+include_recipe %w{php php::module_mysql php::module_gd}
 include_recipe "drupal::drush"
 include_recipe "mysql::server"
-Gem.clear_paths
-require 'mysql'
 
 execute "mysql-install-drupal-privileges" do
   command "/usr/bin/mysql -u root -p#{node[:mysql][:server_root_password]} < /etc/mysql/drupal-grants.sql"
@@ -52,24 +50,10 @@ execute "create #{node[:drupal][:db][:database]} database" do
   end
 end
 
-#install drupal
-#remote_file "#{node[:drupal][:src]}/drupal-#{node[:drupal][:version]}.tar.gz" do
-#  checksum node[:drupal][:checksum]
-#  source "http://ftp.drupal.org/files/projects/drupal-#{node[:drupal][:version]}.tar.gz"
-#  mode "0644"
-#end
-
-#directory "#{node[:drupal][:dir]}" do
-#  owner "root"
-#  group "root"
-#  mode "0755"
-#  action :create
-#end
-
 execute "download-and-install-drupal" do
   cwd  File.dirname(node[:drupal][:dir])
   command "#{node[:drupal][:drush][:dir]}/drush -y dl drupal-#{node[:drupal][:version]} --destination=#{File.dirname(node[:drupal][:dir])} --drupal-project-rename=#{File.basename(node[:drupal][:dir])} && \
-  #{node[:drupal][:drush][:dir]}/drush -y site-install -r #{node[:drupal][:dir]} --account-name=admin --account-pass=mdtest --site-name=Drupal \
+  #{node[:drupal][:drush][:dir]}/drush -y site-install -r #{node[:drupal][:dir]} --account-name=#{node[:drupal][:site][:admin]} --account-pass=#{node[:drupal][:site][:pass]} --site-name=#{node[:drupal][:site][:name]} \
   --db-url=mysql://#{node[:drupal][:db][:user]}:'#{node[:drupal][:db][:password]}'@localhost/#{node[:drupal][:db][:database]}"
   not_if "#{node[:drupal][:drush][:dir]}/drush -r #{node[:drupal][:dir]} status | grep #{node[:drupal][:version]}"
 end
@@ -80,25 +64,10 @@ else
   server_fqdn = node.fqdn
 end
 
-#log "Navigate to 'http://#{server_fqdn}/install.php' to complete the drupal installation" do
-#  action :nothing
-#end
-
 directory "#{node[:drupal][:dir]}/sites/default/files" do
   mode "0777"
   action :create
 end
-
-#template "#{node[:drupal][:dir]}/sites/default/settings.php" do
-#  source "settings.php.erb"
-#  mode "0644"
-#  variables(
-#    :database        => node[:drupal][:db][:database],
-#    :user            => node[:drupal][:db][:user],
-#    :password        => node[:drupal][:db][:password]
-#  )
-#  notifies :write, resources(:log => "Navigate to 'http://#{server_fqdn}/install.php' to complete the drupal installation")
-#end
 
 if node[:drupal][:modules]
   node[:drupal][:modules].each do |m|
@@ -123,3 +92,8 @@ web_app "drupal" do
 end
 
 include_recipe "drupal::cron"
+
+execute "disable-default-site" do
+   command "sudo a2dissite default"
+   notifies :reload, resources(:service => "apache2"), :delayed
+end

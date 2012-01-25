@@ -18,11 +18,14 @@
 # limitations under the License.
 #
 
-default[:drupal][:version] = "7.0"
-default[:drupal][:checksum] = "62e4146b2a2208d0772cef6578205b369f361b2079bf3fa9408e92f5419902e8"
+default[:drupal][:version] = "7.10"
+default[:drupal][:checksum] = "de648c9944ef00ccf6af0fd7cee19a950eae613e1fa7c75dacbe56e4820c8eba"
 default[:drupal][:dir] = "/var/www/drupal"
 default[:drupal][:db][:database] = "drupal"
 default[:drupal][:db][:user] = "drupal"
+default[:drupal][:site][:admin] = "admin"
+default[:drupal][:site][:pass] = "drupaladmin"
+default[:drupal][:site][:name] = "Drupal7"
 
 ::Chef::Node.send(:include, Opscode::OpenSSL::Password)
 

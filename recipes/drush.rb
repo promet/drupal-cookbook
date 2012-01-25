@@ -18,7 +18,7 @@
 # limitations under the License.
 #
 
-include_recipe %w{php::php5 php::module_mysql}
+include_recipe %w{php php::module_mysql php::module_gd}
 
 remote_file "#{node[:drupal][:src]}/drush-All-versions-#{node[:drupal][:drush][:version]}.tar.gz" do
   checksum node[:drupal][:drush][:checksum]
