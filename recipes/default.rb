@@ -18,7 +18,14 @@
 # limitations under the License.
 #
 
-include_recipe %w{apache2 apache2::mod_php5 apache2::mod_rewrite apache2::mod_expires}
+if node[:drupal][:webserver] == "apache2"
+  include_recipe %w{apache2 apache2::mod_php5 apache2::mod_rewrite apache2::mod_expires}
+elsif node[:drupal][:webserver] == "nginx"
+  include_recipe %w{nginx}
+else
+  log "Only webservers currently supported: apache2 and nginx. You have: #{node[:drupal][:webserver]}", { level :warn }
+end
+
 include_recipe %w{php php::module_mysql php::module_gd}
 include_recipe "drupal::drush"
 include_recipe "mysql::server"
@@ -84,16 +91,30 @@ if node[:drupal][:modules]
   end
 end
 
+include_recipe "drupal::cron"
+
+
+# Apache
 web_app "drupal" do
+  only_if { node[:drupal][:webserver] == "apache2" }
   template "drupal.conf.erb"
   docroot "#{node[:drupal][:dir]}"
   server_name server_fqdn
   server_aliases node.fqdn
 end
 
-include_recipe "drupal::cron"
-
 execute "disable-default-site" do
-   command "sudo a2dissite default"
-   notifies :reload, resources(:service => "apache2"), :delayed
+  only_if { node[:drupal][:webserver] == "apache2" }
+  command "sudo a2dissite default"
+  notifies :reload, resources(:service => "apache2"), :delayed
+end
+
+
+# nginx
+nginx_app site do
+  only_if { node[:drupal][:webserver] == "nginx" }
+  template "sites.conf.erb"
+  server_name server_fqdn
+  server_aliases [node.fqdn]
+  docroot "#{node[:drupal][:dir]}"
 end

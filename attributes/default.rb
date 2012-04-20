@@ -26,6 +26,7 @@ default[:drupal][:db][:user] = "drupal"
 default[:drupal][:site][:admin] = "admin"
 default[:drupal][:site][:pass] = "drupaladmin"
 default[:drupal][:site][:name] = "Drupal7"
+default[:drupal][:webserver] = "apache2"
 
 ::Chef::Node.send(:include, Opscode::OpenSSL::Password)
 
