@@ -95,7 +95,7 @@ include_recipe "drupal::cron"
 
 
 # Apache
-web_app "drupal" do
+web_app node[:drupal][:site][:name] do
   only_if { node[:drupal][:webserver] == "apache2" }
   template "drupal.conf.erb"
   docroot "#{node[:drupal][:dir]}"
@@ -111,7 +111,7 @@ end
 
 
 # nginx
-nginx_app site do
+nginx_app node[:drupal][:site][:name] do
   only_if { node[:drupal][:webserver] == "nginx" }
   template "sites.conf.erb"
   server_name server_fqdn
