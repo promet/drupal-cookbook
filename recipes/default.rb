@@ -111,7 +111,7 @@ end
 
 
 # nginx
-nginx_app node[:drupal][:site][:name] do
+nginx_site node[:drupal][:site][:name] do
   only_if { node[:drupal][:webserver] == "nginx" }
   template "sites.conf.erb"
   server_name server_fqdn
