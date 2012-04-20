@@ -1,10 +1,10 @@
 server {
   listen   80;
-  server_name <%= @params[:server_name] %>;
+  server_name <%= @server_name %>;
 
-  access_log  <%= node[:nginx][:log_dir] %>/<%= @params[:server_name] %>.access.log;
+  access_log  <%= node[:nginx][:log_dir] %>/<%= @server_name %>.access.log;
 
-  root   <%= @params[:docroot] %>;
+  root   <%= @docroot %>;
   index  index.php;
 
   if (!-e $request_filename) {

@@ -91,27 +91,31 @@ end
 include_recipe "drupal::cron"
 
 
-# Apache
-web_app node[:drupal][:site][:name] do
-  only_if { node[:drupal][:webserver] == "apache2" }
-  template "drupal.conf.erb"
-  docroot "#{node[:drupal][:dir]}"
-  server_name server_fqdn
-  server_aliases node.fqdn
+if node[:drupal][:webserver] == "apache2"
+  web_app node[:drupal][:site][:name] do
+    template "drupal.conf.erb"
+    docroot "#{node[:drupal][:dir]}"
+    server_name server_fqdn
+    server_aliases node.fqdn
+  end
+
+  execute "disable-default-site" do
+    command "sudo a2dissite default"
+    notifies :reload, resources(:service => "apache2"), :delayed
+  end
 end
 
-execute "disable-default-site" do
-  only_if { node[:drupal][:webserver] == "apache2" }
-  command "sudo a2dissite default"
-  notifies :reload, resources(:service => "apache2"), :delayed
-end
-
-
-# nginx
-nginx_site node[:drupal][:site][:name] do
-  only_if { node[:drupal][:webserver] == "nginx" }
-  template "sites.conf.erb"
-  server_name server_fqdn
-  server_aliases [node.fqdn]
-  docroot "#{node[:drupal][:dir]}"
+if node[:drupal][:webserver] == "nginx"
+  template "#{node[:nginx][:dir]}/sites-enabled/#{node[:drupal][:site][:name]}" do
+    source "sites.conf.erb"
+    owner "root"
+    group "root"
+    mode "0600"
+    variables(
+      :docroot => "#{node[:drupal][:dir]}",
+      :server_name => server_fqdn
+    )
+  end
+  
+  nginx_site node[:drupal][:site][:name]
 end
