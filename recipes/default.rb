@@ -23,7 +23,7 @@ if node[:drupal][:webserver] == "apache2"
 elsif node[:drupal][:webserver] == "nginx"
   include_recipe %w{nginx}
 else
-  log "Only webservers currently supported: apache2 and nginx. You have: #{node[:drupal][:webserver]}", { level :warn }
+  log("Only webservers currently supported: apache2 and nginx. You have: #{node[:drupal][:webserver]}") { level :warn }
 end
 
 include_recipe %w{php php::module_mysql php::module_gd}
