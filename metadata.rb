@@ -8,11 +8,11 @@ recipe           "drupal", "Installs and configures Drupal"
 recipe           "drupal::cron", "Sets up the default drupal cron"
 recipe           "drupal::drush", "Installs drush - a command line shell and scripting interface for Drupal"
 
-%w{ php apache2 mysql openssl }.each do |cb|
+%w{ php apache2 mysql openssl nginx }.each do |cb|
   depends cb
 end
 
-%w{ debian ubuntu }.each do |os|
+%w{ debian ubuntu centos redhat amazon scientific }.each do |os|
   supports os
 end
 

@@ -1,0 +1,40 @@
+server {
+  listen   80;
+  server_name <%= @server_name %>;
+
+  access_log  <%= node[:nginx][:log_dir] %>/<%= @server_name %>.access.log;
+
+  root   <%= @docroot %>;
+  index  index.php;
+
+  if (!-e $request_filename) {
+    rewrite  ^/(.*)$  /index.php?q=$1  last;
+    break;
+  }
+
+  location ~ (\.php)$ {
+    include fastcgi_params;
+    fastcgi_index index.php;
+    fastcgi_connect_timeout 60;
+    fastcgi_send_timeout 180;
+    fastcgi_read_timeout 180;
+    fastcgi_buffer_size 128k;
+    fastcgi_buffers 4 256k;
+    fastcgi_busy_buffers_size 256k;
+    fastcgi_temp_file_write_size 256k;
+    fastcgi_intercept_errors on;
+    fastcgi_pass 127.0.0.1:9000;
+  }
+
+## Images and static content is treated different
+    location ~* ^.+.(jpg|jpeg|gif|css|png|js|ico|xml)$ {
+      access_log        off;
+      expires           30d;
+    }
+
+
+## Disable viewing .htaccess & .htpassword
+    location ~ /\.ht {
+        deny  all;
+    }
+}
