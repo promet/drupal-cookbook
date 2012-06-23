@@ -19,7 +19,7 @@
 #
 
 cron "drupal hourly cron" do
-    command "cd #{node[:drupal][:dir]}; /usr/bin/php cron.php"
+    command "cd #{node['drupal']['dir']}; /usr/bin/php cron.php"
     minute "0"
-    only_if  { File.exist?("#{node[:drupal][:dir]}/cron.php") }
+    only_if  { File.exist?("#{node['drupal']['dir']}/cron.php") }
 end

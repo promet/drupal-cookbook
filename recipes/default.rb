@@ -24,7 +24,7 @@ include_recipe "drupal::drush"
 include_recipe "mysql::server"
 
 execute "mysql-install-drupal-privileges" do
-  command "/usr/bin/mysql -u root -p#{node[:mysql][:server_root_password]} < /etc/mysql/drupal-grants.sql"
+  command "/usr/bin/mysql -u root -p#{node['mysql']['server_root_password']} < /etc/mysql/drupal-grants.sql"
   action :nothing
 end
 
@@ -35,47 +35,47 @@ template "/etc/mysql/drupal-grants.sql" do
   group "root"
   mode "0600"
   variables(
-    :user     => node[:drupal][:db][:user],
-    :password => node[:drupal][:db][:password],
-    :database => node[:drupal][:db][:database]
+    :user     => node['drupal']['db']['user'],
+    :password => node['drupal']['db']['password'],
+    :database => node['drupal']['db']['database']
   )
   notifies :run, resources(:execute => "mysql-install-drupal-privileges"), :immediately
 end
 
-execute "create #{node[:drupal][:db][:database]} database" do
-  command "/usr/bin/mysqladmin -u root -p#{node[:mysql][:server_root_password]} create #{node[:drupal][:db][:database]}"
-  not_if "mysql -u root -p#{node[:mysql][:server_root_password]} --silent --skip-column-names --execute=\"show databases like '#{node[:drupal][:db][:database]}'\" | grep #{node[:drupal][:db][:database]}"
+execute "create #{node['drupal']['db']['database']} database" do
+  command "/usr/bin/mysqladmin -u root -p#{node['mysql']['server_root_password']} create #{node['drupal']['db']['database']}"
+  not_if "mysql -u root -p#{node['mysql']['server_root_password']} --silent --skip-column-names --execute=\"show databases like '#{node['drupal']['db']['database']}'\" | grep #{node['drupal']['db']['database']}"
 end
 
 execute "download-and-install-drupal" do
-  cwd  File.dirname(node[:drupal][:dir])
-  command "#{node[:drupal][:drush][:dir]}/drush -y dl drupal-#{node[:drupal][:version]} --destination=#{File.dirname(node[:drupal][:dir])} --drupal-project-rename=#{File.basename(node[:drupal][:dir])} && \
-  #{node[:drupal][:drush][:dir]}/drush -y site-install -r #{node[:drupal][:dir]} --account-name=#{node[:drupal][:site][:admin]} --account-pass=#{node[:drupal][:site][:pass]} --site-name=#{node[:drupal][:site][:name]} \
-  --db-url=mysql://#{node[:drupal][:db][:user]}:'#{node[:drupal][:db][:password]}'@localhost/#{node[:drupal][:db][:database]}"
-  not_if "#{node[:drupal][:drush][:dir]}/drush -r #{node[:drupal][:dir]} status | grep #{node[:drupal][:version]}"
+  cwd  File.dirname(node['drupal']['dir'])
+  command "#{node['drupal']['drush']['dir']}/drush -y dl drupal-#{node['drupal']['version']} --destination=#{File.dirname(node['drupal']['dir'])} --drupal-project-rename=#{File.basename(node['drupal']['dir'])} && \
+  #{node['drupal']['drush']['dir']}/drush -y site-install -r #{node['drupal']['dir']} --account-name=#{node['drupal']['site']['admin']} --account-pass=#{node['drupal']['site']['pass']} --site-name=#{node['drupal']['site']['name']} \
+  --db-url=mysql://#{node['drupal']['db']['user']}:'#{node['drupal']['db']['password']}'@localhost/#{node['drupal']['db']['database']}"
+  not_if "#{node['drupal']['drush']['dir']}/drush -r #{node['drupal']['dir']} status | grep #{node['drupal']['version']}"
 end
 
 if node.has_key?("ec2")
-  server_fqdn = node.ec2.public_hostname
+  server_fqdn = node['ec2']['public_hostname']
 else
-  server_fqdn = node.fqdn
+  server_fqdn = node['fqdn']
 end
 
-directory "#{node[:drupal][:dir]}/sites/default/files" do
+directory "#{node['drupal']['dir']}/sites/default/files" do
   mode "0777"
   action :create
 end
 
-if node[:drupal][:modules]
-  node[:drupal][:modules].each do |m|
+if node['drupal']['modules']
+  node['drupal']['modules'].each do |m|
     if m.is_a?Array
       drupal_module m.first do
         version m.last
-        dir node[:drupal][:dir]
+        dir node['drupal']['dir']
       end
     else
       drupal_module m do
-        dir node[:drupal][:dir]
+        dir node['drupal']['dir']
       end
     end
   end
@@ -83,9 +83,9 @@ end
 
 web_app "drupal" do
   template "drupal.conf.erb"
-  docroot "#{node[:drupal][:dir]}"
+  docroot node['drupal']['dir']
   server_name server_fqdn
-  server_aliases node.fqdn
+  server_aliases node['fqdn']
 end
 
 include_recipe "drupal::cron"

@@ -27,13 +27,13 @@ define :drupal_module, :action => :install, :dir => nil, :version => nil do
     end
     execute "drush_dl_module #{params[:name]}" do
       cwd params[:dir]
-      command "#{node[:drupal][:drush][:dir]}/drush -y dl #{params[:name]}"
-      not_if "#{node[:drupal][:drush][:dir]}/drush -r #{params[:dir]} pm-list |grep '(#{params[:name]})' |grep '#{params[:version]}'"
+      command "#{node['drupal']['drush']['dir']}/drush -y dl #{params[:name]}"
+      not_if "#{node['drupal']['drush']['dir']}/drush -r #{params[:dir]} pm-list |grep '(#{params[:name]})' |grep '#{params[:version]}'"
     end
     execute "drush_en_module #{params[:name]}" do
       cwd params[:dir]
-      command "#{node[:drupal][:drush][:dir]}/drush -y en #{params[:name]}"
-      not_if "#{node[:drupal][:drush][:dir]}/drush -r #{params[:dir]} pm-list |grep '(#{params[:name]})' |grep -i 'enabled'"
+      command "#{node['drupal']['drush']['dir']}/drush -y en #{params[:name]}"
+      not_if "#{node['drupal']['drush']['dir']}/drush -r #{params[:dir]} pm-list |grep '(#{params[:name]})' |grep -i 'enabled'"
     end
   else
     log "drupal_source action #{params[:name]} is unrecognized."
