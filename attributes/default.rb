@@ -18,8 +18,8 @@
 # limitations under the License.
 #
 
-default['drupal']['version'] = "7.10"
-default['drupal']['checksum'] = "de648c9944ef00ccf6af0fd7cee19a950eae613e1fa7c75dacbe56e4820c8eba"
+default['drupal']['version'] = "7.14"
+default['drupal']['checksum'] = "17db094aaa78d76ec6a3517171f1d8c158745eee2e19006d5ed97b7ffc2c54da"
 default['drupal']['dir'] = "/var/www/drupal"
 default['drupal']['db']['database'] = "drupal"
 default['drupal']['db']['user'] = "drupal"
