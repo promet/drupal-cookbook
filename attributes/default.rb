@@ -32,8 +32,8 @@ default['drupal']['site']['name'] = "Drupal7"
 set_unless['drupal']['db']['password'] = secure_password
 default['drupal']['src'] = Chef::Config[:file_cache_path]
 
-default['drupal']['drush']['version'] = "4.x-dev"
-default['drupal']['drush']['checksum'] = "86bf384f5d70793a6f41d0e4a0d25fa1dceaccb17c9f7db1c5bf0397be6ab64a"
+default['drupal']['drush']['version'] = "7.x-5.4"
+default['drupal']['drush']['checksum'] = "6cea1275f2aad22b8d3474bb34b4494f069f823feecccb7edb399631f0b0ca40"
 default['drupal']['drush']['dir'] = "/usr/local/drush"
 
 default['drupal']['modules'] = ["views", "webform"]
