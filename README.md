@@ -1,16 +1,18 @@
-= DESCRIPTION:
+Description
+===========
 
 Installs and configures Drupal; it creates the drupal db user, db password and the database;
 You will need to manually complete the installation step by visiting http://<server_fqdn>/install.php
 
-= REQUIREMENTS:
+Requirements
+============
 
-== Platform:
+## Platform:
 
 Tested on Ubuntu 10.04, Debian Lenny. As long as the required cookbooks work (apache, php, mysql) it
 should work just fine on any other distributions.
 
-== Cookbooks:
+## Cookbooks:
 
 Opscode cookbooks (http://github.com/opscode/cookbooks/tree/master)
 
@@ -19,7 +21,7 @@ Opscode cookbooks (http://github.com/opscode/cookbooks/tree/master)
 * apache2
 * openssl (used to generate the secure random drupal db password)
 
-= ATTRIBUTES:
+# ATTRIBUTES:
 
 * drupal[:version] - version of drupal to download and install (default: 6.19)
 * drupal[:checksum] - sha256sum of the source tarball
@@ -33,7 +35,7 @@ Opscode cookbooks (http://github.com/opscode/cookbooks/tree/master)
 * drupal[:drush][:checksum] - sha256sum of the drush tarball
 * drupal[:drush][:dir] - where to install the drush file. (default: /usr/local/drush)
 
-= USAGE:
+# USAGE:
 
 Include the drupal recipe to install drupal on your system; this will enable also the drupal cron:
 
@@ -46,11 +48,12 @@ Include the drush recipe to install drush:
 If you want to install a different version you just have to customize the version attribute and checksum 
 (sha256 checksum on the source)
 
-= LICENSE and AUTHOR:
+License and Author
+==================
 
 Author:: Marius Ducea (marius@promethost.com)
 
-Copyright:: 2010, Promet Solutions
+Copyright:: 2010-2012, Promet Solutions
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
