@@ -23,7 +23,7 @@ Opscode cookbooks (http://github.com/opscode/cookbooks/tree/master)
 * apache2
 * openssl (used to generate the secure random drupal db password)
 
-## ATTRIBUTES:
+# ATTRIBUTES:
 
 * drupal[:version] - version of drupal to download and install (default: 6.19)
 * drupal[:checksum] - sha256sum of the source tarball
@@ -37,17 +37,17 @@ Opscode cookbooks (http://github.com/opscode/cookbooks/tree/master)
 * drupal[:drush][:checksum] - sha256sum of the drush tarball
 * drupal[:drush][:dir] - where to install the drush file. (default: /usr/local/drush)
 
-## USAGE:
+# USAGE:
 
 Include the drupal recipe to install drupal on your system; this will enable also the drupal cron:
 
   include_recipe "drupal"
 
 Include the drush recipe to install drush:
-  
+
   include_recipe "drupal::drush"
 
-If you want to install a different version you just have to customize the version attribute and checksum 
+If you want to install a different version you just have to customize the version attribute and checksum
 (sha256 checksum on the source)
 
 License and Author
