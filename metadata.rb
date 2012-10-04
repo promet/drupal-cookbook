@@ -8,7 +8,7 @@ recipe           "drupal", "Installs and configures Drupal"
 recipe           "drupal::cron", "Sets up the default drupal cron"
 recipe           "drupal::drush", "Installs drush - a command line shell and scripting interface for Drupal"
 
-%w{ php apache2 mysql openssl }.each do |cb|
+%w{ postfix php apache2 mysql openssl }.each do |cb|
   depends cb
 end
 
