@@ -1,4 +1,4 @@
-# <a name="title"></a> drupal-cookbook [![Build Status](https://secure.travis-ci.org/mdxp/drupal-cookbook.png)](http://travis-ci.org/mdxp/drupal-cookbook)
+# <a name="title"></a> drupal-cookbook [![Build Status](https://secure.travis-ci.org/cdracars/drupal-cookbook.png)](http://travis-ci.org/cdracars/drupal-cookbook)
 
 Description
 ===========
@@ -44,10 +44,10 @@ Include the drupal recipe to install drupal on your system; this will enable als
   include_recipe "drupal"
 
 Include the drush recipe to install drush:
-  
+
   include_recipe "drupal::drush"
 
-If you want to install a different version you just have to customize the version attribute and checksum 
+If you want to install a different version you just have to customize the version attribute and checksum
 (sha256 checksum on the source)
 
 License and Author
