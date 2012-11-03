@@ -4,7 +4,7 @@ Description
 ===========
 
 Installs and configures Drupal; it creates the drupal db user, db password and the database;
-You will need to manually complete the installation step by visiting http://<server_fqdn>/install.php
+You will need to manually complete the installation step by visiting http://server_fqdn/install.php
 
 Requirements
 ============
@@ -22,6 +22,7 @@ Opscode cookbooks (http://github.com/opscode/cookbooks/tree/master)
 * php
 * apache2
 * openssl (used to generate the secure random drupal db password)
+* postfix
 
 # ATTRIBUTES:
 
@@ -30,6 +31,7 @@ Opscode cookbooks (http://github.com/opscode/cookbooks/tree/master)
 * drupal[:dir] - location to copy the drupal files. (default: /var/www/drupal)
 * drupal[:db][:database] - drupal database (default: drupal)
 * drupal[:db][:user] - drupal db user (default: drupal)
+* drupal[:db][:host] - durpal db host (default: localhost)
 * drupal[:db][:password] - drupal db password (randomly generated if not defined)
 * drupal[:src] - where to place the drupal source tarball (default: Chef::Config[:file_cache_path])
 
