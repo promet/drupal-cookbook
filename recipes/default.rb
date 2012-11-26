@@ -38,7 +38,8 @@ template "/etc/mysql/drupal-grants.sql" do
   variables(
     :user     => node['drupal']['db']['user'],
     :password => node['drupal']['db']['password'],
-    :database => node['drupal']['db']['database']
+    :database => node['drupal']['db']['database'],
+    :host => node['drupal']['db']['host']
   )
   notifies :run, resources(:execute => "mysql-install-drupal-privileges"), :immediately
 end

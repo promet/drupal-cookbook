@@ -23,9 +23,11 @@ default['drupal']['checksum'] = "17db094aaa78d76ec6a3517171f1d8c158745eee2e19006
 default['drupal']['dir'] = "/var/www/drupal"
 default['drupal']['db']['database'] = "drupal"
 default['drupal']['db']['user'] = "drupal"
+default['drupal']['db']['host'] = "localhost"
 default['drupal']['site']['admin'] = "admin"
 default['drupal']['site']['pass'] = "drupaladmin"
 default['drupal']['site']['name'] = "Drupal7"
+default['drupal']['apache']['port'] = "80"
 
 ::Chef::Node.send(:include, Opscode::OpenSSL::Password)
 

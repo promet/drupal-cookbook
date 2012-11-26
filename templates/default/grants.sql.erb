@@ -1,3 +1,4 @@
 GRANT ALL ON <%= @database %>.* TO '<%= @user %>'@'%' IDENTIFIED BY '<%= @password %>';
+GRANT ALL ON <%= @database %>.* TO '<%= @user %>'@'<%= @host %>' IDENTIFIED BY '<%= @password %>';
 
 FLUSH PRIVILEGES;
