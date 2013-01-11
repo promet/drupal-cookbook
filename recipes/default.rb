@@ -41,7 +41,7 @@ template "/etc/mysql/drupal-grants.sql" do
     :database => node['drupal']['db']['database'],
     :host => node['drupal']['site']['host']
   )
-  notifies :run, resources(:execute => "mysql-install-drupal-privileges"), :immediately
+  notifies :run, "execute[mysql-install-drupal-privileges]", :immediately
 end
 
 execute "create #{node['drupal']['db']['database']} database" do
@@ -94,5 +94,5 @@ include_recipe "drupal::cron"
 
 execute "disable-default-site" do
    command "sudo a2dissite default"
-   notifies :reload, resources(:service => "apache2"), :delayed
+   notifies :reload, "service[apache2]", :delayed
 end
