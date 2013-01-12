@@ -14,6 +14,11 @@ task :foodcritic do
   end
 end
 
+desc "Runs test-kitchen suite"
+task :test_kitchen do
+  sh "kitchen test --teardown"
+end
+
 task :default => 'foodcritic'
 
 private
