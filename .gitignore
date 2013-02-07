@@ -1,4 +1,5 @@
 Gemfile.lock
+Berksfile.lock
 tmp/
 # Test Kitchen
 .kitchen
