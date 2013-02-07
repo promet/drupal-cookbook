@@ -1,4 +1,4 @@
 Gemfile.lock
 tmp/
-# Test Kitchen
-.kitchen
+*.swp
+.rvmrc
