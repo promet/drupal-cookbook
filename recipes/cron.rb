@@ -18,6 +18,8 @@
 # limitations under the License.
 #
 
+include_recipe "cron"
+
 cron "drupal hourly cron" do
     command "cd #{node['drupal']['dir']}; /usr/bin/php cron.php"
     minute "0"
