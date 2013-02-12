@@ -21,6 +21,7 @@
 include_recipe %w{apache2 apache2::mod_php5 apache2::mod_rewrite apache2::mod_expires}
 include_recipe %w{php php::module_mysql php::module_gd}
 include_recipe "postfix"
+include_recipe "cron"
 include_recipe "drupal::drush"
 
 # Centos does not include the php-dom extension in it's minimal php install.
