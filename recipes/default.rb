@@ -108,4 +108,5 @@ include_recipe "drupal::cron"
 execute "disable-default-site" do
    command "sudo a2dissite default"
    notifies :reload, "service[apache2]", :delayed
+   only_if do File.exists? "#{node['apache']['dir']}/sites-enabled/default" end
 end
