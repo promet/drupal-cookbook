@@ -22,7 +22,20 @@ include_recipe %w{apache2 apache2::mod_php5 apache2::mod_rewrite apache2::mod_ex
 include_recipe %w{php php::module_mysql php::module_gd}
 include_recipe "postfix"
 include_recipe "drupal::drush"
-include_recipe "mysql::client"
+
+# Centos does not include the php-dom extension in it's minimal php install.
+case node['platform_family']
+when 'rhel', 'fedora'
+  package 'php-dom' do
+    action :install
+  end
+end
+
+if node['drupal']['site']['host'] == "localhost"
+  include_recipe "mysql::server"
+else
+  include_recipe "mysql::client"
+end
 
 execute "mysql-install-drupal-privileges" do
   command "/usr/bin/mysql -h #{node['drupal']['db']['host']} -u root -p#{node['mysql']['server_root_password']} < /etc/mysql/drupal-grants.sql"
@@ -95,4 +108,5 @@ include_recipe "drupal::cron"
 execute "disable-default-site" do
    command "sudo a2dissite default"
    notifies :reload, "service[apache2]", :delayed
+   only_if do File.exists? "#{node['apache']['dir']}/sites-enabled/default" end
 end
