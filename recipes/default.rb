@@ -31,7 +31,7 @@ when 'rhel', 'fedora'
   end
 end
 
-if node['drupal']['site']['host'] == "localhost"
+if node['drupal']['db']['host'] == "localhost"
   include_recipe "mysql::server"
 else
   include_recipe "mysql::client"
