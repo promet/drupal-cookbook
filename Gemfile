@@ -4,4 +4,4 @@ gem 'berkshelf'
 gem 'vagrant', '~> 1.0.5'
 gem 'rake'
 gem 'foodcritic'
-gem 'test-kitchen'
+gem 'test-kitchen', "< 1.0"
