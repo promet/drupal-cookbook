@@ -27,12 +27,12 @@ define :drupal_module, :action => :install, :dir => nil, :version => nil do
     end
     execute "drush_dl_module #{params[:name]}" do
       cwd params[:dir]
-      command "#{node['drupal']['drush']['dir']}/drush -y dl #{params[:name]}"
+      command "#{node['drupal']['drush']['dir']}/drush -y dl #{params[:name]} #{node['drupal']['drush']['options']}"
       not_if "#{node['drupal']['drush']['dir']}/drush -r #{params[:dir]} pm-list |grep '(#{params[:name]})' |grep '#{params[:version]}'"
     end
     execute "drush_en_module #{params[:name]}" do
       cwd params[:dir]
-      command "#{node['drupal']['drush']['dir']}/drush -y en #{params[:name]}"
+      command "#{node['drupal']['drush']['dir']}/drush -y en #{params[:name]} #{node['drupal']['drush']['options']}"
       not_if "#{node['drupal']['drush']['dir']}/drush -r #{params[:dir]} pm-list |grep '(#{params[:name]})' |grep -i 'enabled'"
     end
   else
