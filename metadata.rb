@@ -8,12 +8,12 @@ version          "1.1.1"
 recipe           "drupal", "Installs and configures Drupal"
 recipe           "drupal::cron", "Sets up the default drupal cron"
 recipe           "drupal::drush", "Installs drush - a command line shell and scripting interface for Drupal"
-
-%w{ postfix php apache2 mysql openssl firewall cron }.each do |cb|
+recipe           "drupal:iptables", "Handles opening up the HTTP ports for CentOs VMs."
+%w{ postfix php apache2 mysql openssl firewall iptables cron }.each do |cb|
   depends cb
 end
 
-%w{ debian ubuntu }.each do |os|
+%w{ debian ubuntu centos}.each do |os|
   supports os
 end
 
