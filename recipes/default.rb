@@ -29,6 +29,8 @@ when 'rhel', 'fedora'
   package 'php-dom' do
     action :install
   end
+  # CentOs closes port 80, 443 by default.
+  include_recipe "drupal::iptables"
 end
 
 if node['drupal']['site']['host'] == "localhost"
