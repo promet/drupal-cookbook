@@ -18,6 +18,8 @@
 # limitations under the License.
 #
 
+chef_gem "ruby-shadow"
+
 include_recipe %w{apache2 apache2::mod_php5 apache2::mod_rewrite apache2::mod_expires}
 include_recipe %w{php php::module_mysql php::module_gd}
 include_recipe "postfix"
@@ -55,6 +57,12 @@ template "/etc/mysql/drupal-grants.sql" do
     :host => node['drupal']['site']['host']
   )
   notifies :run, "execute[mysql-install-drupal-privileges]", :immediately
+end
+
+user node['drupal']['system']['user'] do
+  home node['drupal']['dir']
+  shell "/bin/bash"
+  password node['drupal']['system']['pass_hash']
 end
 
 execute "create #{node['drupal']['db']['database']} database" do

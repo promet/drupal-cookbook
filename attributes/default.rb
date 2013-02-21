@@ -28,6 +28,8 @@ default['drupal']['site']['pass'] = "drupaladmin"
 default['drupal']['site']['name'] = "Drupal7"
 default['drupal']['site']['host'] = "localhost"
 default['drupal']['apache']['port'] = "80"
+default['drupal']['system']['user'] = "drupal"
+default['drupal']['system']['pass_hash'] = nil
 
 ::Chef::Node.send(:include, Opscode::OpenSSL::Password)
 
