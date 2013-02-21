@@ -16,7 +16,6 @@
 #
 
 include_recipe "firewall"
-include_recipe "drupal"
 
 firewall_rule "http" do
   port node['drupal']['firewall']['http']
