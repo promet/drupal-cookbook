@@ -3,5 +3,3 @@ node.set['mysql']['server_root_password']   = "ilikerandompasswords"
 node.set['mysql']['server_repl_password']   = "ilikerandompasswords"
 
 node.set['drupal']['drush']['options'] = '-v'
-
-include_recipe "mysql::server"
