@@ -40,12 +40,6 @@ template "/etc/mysql/drupal-grants.sql" do
   notifies :run, "execute[mysql-install-drupal-privileges]", :immediately
 end
 
-user node['drupal']['system']['user'] do
-  home node['drupal']['dir']
-  shell "/bin/bash"
-  password node['drupal']['system']['pass_hash']
-end
-
 execute "create #{node['drupal']['db']['database']} database" do
   command "/usr/bin/mysqladmin -h #{node['drupal']['db']['host']} -u root -p#{node['mysql']['server_root_password']} create #{node['drupal']['db']['database']}"
   not_if "mysql -h #{node['drupal']['db']['host']} -u root -p#{node['mysql']['server_root_password']} --silent --skip-column-names --execute=\"show databases like '#{node['drupal']['db']['database']}'\" | grep #{node['drupal']['db']['database']}"
@@ -53,6 +47,7 @@ end
 
 execute "install-drupal" do
   cwd  File.dirname(node['drupal']['dir'])
+  user node['drupal']['system']['user']
   command "#{node['drupal']['drush']['dir']}/drush -y site-install -r #{node['drupal']['dir']} --account-name=#{node['drupal']['site']['admin']} --account-pass=#{node['drupal']['site']['pass']} --site-name=\"#{node['drupal']['site']['name']}\" \
   --db-url=mysql://#{node['drupal']['db']['user']}:'#{node['drupal']['db']['password']}'@#{node['drupal']['db']['host']}/#{node['drupal']['db']['database']} #{node['drupal']['drush']['options']}"
   not_if "test -f #{node['drupal']['dir']}/sites/default/settings.php"

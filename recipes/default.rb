@@ -39,8 +39,22 @@ else
   include_recipe "mysql::client"
 end
 
+user node['drupal']['system']['user'] do
+  home node['drupal']['dir']
+  shell "/bin/bash"
+  password node['drupal']['system']['pass_hash']
+end
+
+directory node['drupal']['dir'] do
+  owner node['drupal']['system']['user']
+  group node['drupal']['system']['user']
+  mode 00755
+  recursive true
+end
+
 execute "download-drupal" do
   cwd  File.dirname(node['drupal']['dir'])
+  user node['drupal']['system']['user']
   command "#{node['drupal']['drush']['dir']}/drush -y dl drupal-#{node['drupal']['version']} --destination=#{File.dirname(node['drupal']['dir'])} --drupal-project-rename=#{File.basename(node['drupal']['dir'])}"
   not_if "#{node['drupal']['drush']['dir']}/drush -r #{node['drupal']['dir']} status | grep #{node['drupal']['version']}"
   retries 3
