@@ -61,7 +61,13 @@ else
 end
 
 directory "#{node['drupal']['dir']}/sites/default/files" do
-  mode "0777"
+  case node['platform']
+  when "debian", "ubuntu"
+    group "www-data"
+  when "centos", "redhat", "amazon", "scientific"
+    group "apache"
+  end
+  mode "0775"
   action :create
 end
 
