@@ -50,7 +50,7 @@ execute "install-drupal" do
   user node['drupal']['system']['user']
   command "#{node['drupal']['drush']['dir']}/drush -y site-install -r #{node['drupal']['dir']} --account-name=#{node['drupal']['site']['admin']} --account-pass=#{node['drupal']['site']['pass']} --site-name=\"#{node['drupal']['site']['name']}\" \
   --db-url=mysql://#{node['drupal']['db']['user']}:'#{node['drupal']['db']['password']}'@#{node['drupal']['db']['host']}/#{node['drupal']['db']['database']} #{node['drupal']['drush']['options']}"
-  not_if "test -f #{node['drupal']['dir']}/sites/default/settings.php"
+  creates "#{node['drupal']['dir']}/sites/default/settings.php"
   retries 3
 end
 
@@ -67,7 +67,7 @@ directory "#{node['drupal']['dir']}/sites/default/files" do
   when "centos", "redhat", "amazon", "scientific"
     group "apache"
   end
-  mode "0775"
+  mode "2775"
   action :create
 end
 
