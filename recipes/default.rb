@@ -45,7 +45,7 @@ user node['drupal']['system']['user'] do
   password node['drupal']['system']['pass_hash']
 end
 
-directory node['drupal']['dir'] do
+directory File.dirname(node['drupal']['dir']) do
   owner node['drupal']['system']['user']
   group node['drupal']['system']['user']
   mode 00755
