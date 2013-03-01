@@ -15,6 +15,6 @@
 #
 include_recipe "drupal::lsyncd-key"
 
-template "/etc/lsyncd/lsyncd.conf.lua" do
+template "/etc/lsyncd.conf.lua" do
   source "lsyncd.conf.lua.erb"
 end
