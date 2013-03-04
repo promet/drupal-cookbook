@@ -10,6 +10,6 @@ settings = {
 	default.rsync,
 	source="<%= node['drupal']['dir'] %>",
 	target="<%= node['drupal']['system']['user'] %>@<%= ip_addr %>:<%= node['drupal']['dir'] %>",
-	rsyncOps={"-rlpgoDvz", "-e", "/usr/bin/ssh -i <%= node['drupal']['system']['home'] %>/.ssh/id_rsa.lsyncd -o StrictHostKeyChecking=no"}
+	rsyncOpts={"-rlpgoDvz", "-e", "/usr/bin/ssh -i <%= node['drupal']['system']['home'] %>/.ssh/id_rsa.lsyncd -o StrictHostKeyChecking=no"}
   }
 <%end%>
