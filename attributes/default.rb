@@ -19,7 +19,7 @@
 #
 
 default['drupal']['version'] = "7.18"
-default['drupal']['dir'] = "/var/www/drupal/global"
+default['drupal']['dir'] = "/var/www/drupal/htdocs"
 default['drupal']['db']['database'] = "drupal"
 default['drupal']['db']['user'] = "drupal"
 default['drupal']['db']['host'] = "localhost"
