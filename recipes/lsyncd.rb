@@ -19,6 +19,6 @@ template "/etc/lsyncd.conf.lua" do
   source "lsyncd.conf.lua.erb"
 end
 
-template "/etc/logratate.d/lsyncd" do
+template "/etc/logrotate.d/lsyncd" do
   source "logrotate_lsyncd.erb"
 end
