@@ -22,7 +22,6 @@ Opscode cookbooks (http://github.com/opscode/cookbooks/tree/master)
 * php
 * apache2
 * openssl (used to generate the secure random drupal db password)
-* postfix
 
 # ATTRIBUTES:
 
