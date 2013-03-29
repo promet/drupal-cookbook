@@ -18,7 +18,7 @@
 # limitations under the License.
 #
 
-default['drupal']['version'] = "7.18"
+default['drupal']['version'] = "7.21"
 default['drupal']['dir'] = "/var/www/drupal"
 default['drupal']['db']['database'] = "drupal"
 default['drupal']['db']['user'] = "drupal"
