@@ -1,9 +1,8 @@
 Vagrant.configure("2") do |config|
   config.vm.hostname = "drupal-berkshelf"
 
-  #config.vm.box = "opscode-ubuntu-12.04"
-  config.vm.box = "precise64"
-  #config.vm.box_url = "https://opscode-vm.s3.amazonaws.com/vagrant/boxes/opscode-ubuntu-12.04.box"
+  config.vm.box = "opscode-ubuntu-12.04"
+  config.vm.box_url = "https://opscode-vm.s3.amazonaws.com/vagrant/boxes/opscode-ubuntu-12.04.box"
 
 
   config.vm.provider :virtualbox do |vb|
