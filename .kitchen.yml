@@ -1,0 +1,42 @@
+---
+driver_plugin: vagrant
+
+platforms:
+- name: ubuntu-12.04
+  driver_config:
+    box: vagrant-ubuntu-12.04
+    box_url: http://files.vagrantup.com/precise64.box
+    require_chef_omnibus: 11.4.0
+  run_list:
+  - recipe[apt]
+- name: ubuntu-10.04
+  driver_config:
+    box: opscode-ubuntu-10.04
+    box_url: http://opscode-vm.s3.amazonaws.com/vagrant/opscode_ubuntu-10.04_chef-11.2.0.box
+  run_list:
+  - recipe[apt]
+- name: centos-6.3
+  driver_config:
+    box: opscode-centos-6.3
+    box_url: http://opscode-vm.s3.amazonaws.com/vagrant/opscode_centos-6.3_chef-11.2.0.box
+  run_list:
+  - recipe[yum]
+- name: centos-5.8
+  driver_config:
+    box: opscode-centos-5.8
+    box_url: http://opscode-vm.s3.amazonaws.com/vagrant/opscode_centos-5.8_chef-11.2.0.box
+  run_list:
+  - recipe[yum]
+
+suites:
+- name: drupal
+  run_list:
+  - recipe[drupal::install]
+  attributes:
+    drupal:
+      drush:
+        options: '-v'
+    mysql:
+      server_root_password: rootpass
+      server_debian_password: debpass
+      server_repl_password: replpass

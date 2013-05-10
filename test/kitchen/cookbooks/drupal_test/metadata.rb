@@ -1,5 +1,0 @@
-maintainer         "BK Box"
-maintainer_email   "bk@theboxes.org"
-license            "Apache 2.0"
-description        "Acceptance tests for drupal"
-version            "0.1.0"
