@@ -61,14 +61,14 @@ else
 end
 
 directory "#{node['drupal']['dir']}/sites/default/files" do
-  case node['platform']
-  when "debian", "ubuntu"
-    group "www-data"
-  when "centos", "redhat", "amazon", "scientific"
-    group "apache"
-  end
+  group node['drupal']['apache']['group']
   mode "2775"
   action :create
+end
+
+execute "fixup #{node['drupal']['dir']} group recursively" do
+  command "chgrp -Rf #{node['drupal']['apache']['group']} #{node['drupal']['dir']}"
+  only_if { Etc.getgrgid(File.stat(node['drupal']['dir']).gid).name != node['drupal']['apache']['group'] }
 end
 
 if node['drupal']['modules']

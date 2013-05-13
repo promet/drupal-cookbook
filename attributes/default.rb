@@ -17,6 +17,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+case node['platform_family']
+when "rhel"
+  apache_group = "apache"
+when "debian"
+  apache_group = "www-data"
+end
 
 default['drupal']['version'] = "7.18"
 default['drupal']['dir'] = "/var/www/drupal/htdocs"
@@ -28,6 +34,7 @@ default['drupal']['site']['pass'] = "drupaladmin"
 default['drupal']['site']['name'] = "Drupal7"
 default['drupal']['site']['host'] = "localhost"
 default['drupal']['apache']['port'] = "80"
+default['drupal']['apache']['group'] = node['apache']['group'] rescue apache_group
 default['drupal']['system']['user'] = "drupal"
 default['drupal']['system']['pass_hash'] = nil
 default['drupal']['system']['home'] = node['drupal']['dir']
