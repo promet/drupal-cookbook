@@ -1,6 +1,0 @@
-cookbook "drupal" do
-
-  configuration "default"
-  configuration "firewall"
-
-end

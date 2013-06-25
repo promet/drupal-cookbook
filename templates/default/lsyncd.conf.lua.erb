@@ -1,0 +1,15 @@
+settings = {
+   logfile    = "<%= File.dirname(node['drupal']['dir']) %>/lsyncd.log",
+   statusFile = "<%= File.dirname(node['drupal']['dir']) %>/lsyncd-status.log",
+   statusInterval = 5,
+   pidfile = "<%= File.dirname(node['drupal']['dir']) %>/lsyncd.pid"
+}
+
+<% [*node['drupal']['lsyncd']['slaves']].each do |ip_addr| %>
+  sync{
+	default.rsync,
+	source="<%= node['drupal']['dir'] %>",
+	target="<%= node['drupal']['system']['user'] %>@<%= ip_addr %>:<%= node['drupal']['dir'] %>",
+	rsyncOpts={"-rlpgoDvz", "-e", "/usr/bin/ssh -i <%= node['drupal']['system']['home'] %>/.ssh/id_rsa.lsyncd -o StrictHostKeyChecking=no"}
+  }
+<%end%>

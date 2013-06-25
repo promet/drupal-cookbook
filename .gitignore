@@ -1,8 +1,18 @@
-Gemfile.lock
+.vagrant
 Berksfile.lock
-tmp/
-# Test Kitchen
-.kitchen
-*.swp
-.rvmrc
+*~
+*#
+.#*
+\#*#
+.*.sw[a-z]
+*.un~
+/cookbooks
+tmp
 
+# Bundler
+Gemfile.lock
+bin/*
+.bundle/*
+
+.kitchen/
+.kitchen.local.yml

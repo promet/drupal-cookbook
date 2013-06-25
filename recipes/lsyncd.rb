@@ -1,6 +1,5 @@
-#
 # Cookbook Name:: drupal
-# Recipe:: firewall
+# Recipe:: lsyncd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,19 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+include_recipe "drupal::lsyncd-key"
 
-include_recipe "firewall"
-
-firewall_rule "http" do
-  port node['drupal']['firewall']['http']
-  protocol :tcp
-  interface node['drupal']['firewall']['interface']
-  action :allow
+template "/etc/lsyncd.conf.lua" do
+  source "lsyncd.conf.lua.erb"
 end
 
-firewall_rule "https" do
-  port node['drupal']['firewall']['https']
-  protocol :tcp
-  interface node['drupal']['firewall']['interface']
-  action :allow
+template "/etc/logrotate.d/lsyncd" do
+  source "logrotate_lsyncd.erb"
 end

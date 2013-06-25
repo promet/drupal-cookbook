@@ -14,6 +14,11 @@ task :foodcritic do
   end
 end
 
+desc "Runs test-kitchen suite"
+task :test_kitchen do
+  sh "kitchen test --teardown"
+end
+
 task :default => 'foodcritic'
 
 private
@@ -26,4 +31,11 @@ recipes resources templates}
   mkdir_p sandbox
   cp_r Dir.glob("{#{files.join(',')}}"), sandbox
   puts "\n\n"
+end
+
+begin
+  require 'kitchen/rake_tasks'
+  Kitchen::RakeTasks.new
+rescue LoadError
+  puts ">>>>> Kitchen gem not loaded, omitting tasks" unless ENV['CI']
 end
