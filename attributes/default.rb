@@ -18,7 +18,7 @@
 # limitations under the License.
 #
 
-default['drupal']['version'] = "7.18"
+default['drupal']['version'] = "7.22"
 default['drupal']['dir'] = "/var/www/drupal"
 default['drupal']['db']['database'] = "drupal"
 default['drupal']['db']['user'] = "drupal"
@@ -34,9 +34,10 @@ default['drupal']['apache']['port'] = "80"
 set_unless['drupal']['db']['password'] = secure_password
 default['drupal']['src'] = Chef::Config[:file_cache_path]
 
-default['drupal']['drush']['version'] = "7.x-5.8"
-default['drupal']['drush']['checksum'] = "15dd85f04c49b4a896b02dd6960d3140f3ae680bab3eea5d3aba27be0481e480"
+default['drupal']['drush']['version'] = "7.x-5.9"
+
+default['drupal']['drush']['checksum'] = "3acc2a2491fef987c17e85122f7d3cd0bc99cefd1bc70891ec3a1c4fd51dccee"
 default['drupal']['drush']['dir'] = "/usr/local/drush"
 
-default['drupal']['modules'] = ["views", "webform"]
+default['drupal']['modules'] = ["jquery_update", "bootstrap","smtp"]
 
