@@ -18,6 +18,12 @@
 # limitations under the License.
 #
 
+# @TODO remove after finalization
+package 'git'
+package 'tmux'
+package 'htop'
+package 'mc'
+
 include_recipe %w{apache2 apache2::mod_php5 apache2::mod_rewrite apache2::mod_expires}
 include_recipe %w{php php::module_mysql php::module_gd}
 include_recipe "postfix"
