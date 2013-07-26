@@ -18,11 +18,15 @@
 # limitations under the License.
 #
 
+default['drupal']['webserver']['type'] = 'apache' # nginx|apache
+default['drupal']['db']['type'] = 'mysql' # postgresql|mysql
+
 default['drupal']['version'] = "7.22"
 default['drupal']['dir'] = "/var/www/drupal"
 default['drupal']['db']['database'] = "drupal"
 default['drupal']['db']['user'] = "drupal"
 default['drupal']['db']['host'] = "localhost"
+default['drupal']['db']['port'] = "5432"
 default['drupal']['site']['admin'] = "admin"
 default['drupal']['site']['pass'] = "drupaladmin"
 default['drupal']['site']['name'] = "Drupal7"
@@ -39,5 +43,5 @@ default['drupal']['drush']['version'] = "7.x-5.9"
 default['drupal']['drush']['checksum'] = "3acc2a2491fef987c17e85122f7d3cd0bc99cefd1bc70891ec3a1c4fd51dccee"
 default['drupal']['drush']['dir'] = "/usr/local/drush"
 
-default['drupal']['modules'] = ["jquery_update", "bootstrap","smtp"]
+default['drupal']['modules'] = ["views", "webform"]
 

@@ -72,13 +72,20 @@ Vagrant.configure("2") do |config|
 
   config.vm.provision :chef_solo do |chef|
     chef.json = {
-     :www_root => '/vagrant/public',
-     :mysql => {
+      :www_root => '/vagrant/public',
+      # If using mysql as db
+      :mysql => {
         :server_root_password => "rootpass",
         :server_repl_password => "replpass",
         :server_debian_password => "debpass"
-     },
-     :drupal => {
+      },
+      # If using postgresql as db
+      :postgresql => {
+        :password => {
+          :postgres => "postgres"
+        }
+      },
+      :drupal => {
         :db => {
           :password => "drupalpass"
         },
@@ -88,7 +95,6 @@ Vagrant.configure("2") do |config|
         :localhost_aliases => ["drupal.vbox.local", "dev-site.vbox.local"]
       }
     }
-
     chef.run_list = [
       "recipe[drupal::default]"
     ]
