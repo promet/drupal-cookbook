@@ -7,4 +7,6 @@ tmp/
 .rvmrc
 # Vagrant
 .vagrant
+# The mysite/ directory used with Vagrant
+mysite
 
