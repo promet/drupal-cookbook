@@ -14,6 +14,7 @@ recipe           "drupal::drush", "Installs drush - a command line shell and scr
 end
 
 depends 'nginx'
+depends 'php-fpm'
 depends 'postgresql'
 
 %w{ debian ubuntu }.each do |os|

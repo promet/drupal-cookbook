@@ -18,8 +18,8 @@
 # limitations under the License.
 #
 
-default['drupal']['webserver']['type'] = 'apache' # nginx|apache
-default['drupal']['db']['type'] = 'mysql' # postgresql|mysql
+default['drupal']['webserver'] = 'nginx' # nginx|apache
+default['drupal']['db']['type'] = 'postgresql' # postgresql|mysql
 
 default['drupal']['version'] = "7.22"
 default['drupal']['dir'] = "/var/www/drupal"
@@ -31,7 +31,33 @@ default['drupal']['site']['admin'] = "admin"
 default['drupal']['site']['pass'] = "drupaladmin"
 default['drupal']['site']['name'] = "Drupal7"
 default['drupal']['site']['host'] = "localhost"
+
 default['drupal']['apache']['port'] = "80"
+
+
+default['drupal']['nginx']['server_name'] = 'cms.clakk.hu'
+default['drupal']['nginx']['port'] = '80'
+default['drupal']['nginx']['location'] = '/'
+default['nginx']['default_site_enabled'] = false
+
+default['php-fpm']['pool']['drupal']['user'] = 'vagrant'
+default['php-fpm']['pool']['drupal']['group'] = 'vagrant'
+
+# @TODO
+default['drupal']['nginx']['fast_cgi_pass'] = 'unix:/var/run/php-fpm-drupal.sock'
+
+default['php-fpm']['pools'] = ['drupal']
+
+default['php-fpm']['pool']['drupal']['listen'] = "/var/run/php-fpm-drupal.sock"
+default['php-fpm']['pool']['drupal']['allowed_clients'] = []
+default['php-fpm']['pool']['drupal']['user'] = 'vagrant' # @TODO
+default['php-fpm']['pool']['drupal']['group'] = 'vagrant' # @TODO
+default['php-fpm']['pool']['drupal']['process_manager'] = "dynamic"
+default['php-fpm']['pool']['drupal']['max_children'] = 5
+default['php-fpm']['pool']['drupal']['start_servers'] = 2
+default['php-fpm']['pool']['drupal']['min_spare_servers'] = 1
+default['php-fpm']['pool']['drupal']['max_spare_servers'] = 3
+default['php-fpm']['pool']['drupal']['max_requests'] = 500
 
 ::Chef::Node.send(:include, Opscode::OpenSSL::Password)
 

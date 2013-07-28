@@ -19,14 +19,14 @@
 #
 
 # @TODO remove after finalization
-package 'git'
+# package 'git'
 package 'tmux'
 package 'htop'
 package 'mc'
 
-case node['drupal']['webserver']['type']
+case node['drupal']['webserver']
   when 'apache' then include_recipe %w{apache2 apache2::mod_php5 apache2::mod_rewrite apache2::mod_expires}
-  when 'nginx' then include_recipe 'nginx'
+  when 'nginx' then include_recipe %w{nginx php-fpm}
 end
 
 include_recipe 'php'
@@ -116,7 +116,7 @@ case node['drupal']['db']['type']
       command "#{node['drupal']['drush']['dir']}/drush -y dl drupal-#{node['drupal']['version']} --destination=#{File.dirname(node['drupal']['dir'])} --drupal-project-rename=#{File.basename(node['drupal']['dir'])} && \
       #{node['drupal']['drush']['dir']}/drush -y site-install -r #{node['drupal']['dir']} --account-name=#{node['drupal']['site']['admin']} --account-pass=#{node['drupal']['site']['pass']} --site-name=\"#{node['drupal']['site']['name']}\" \
       --db-url=mysql://#{node['drupal']['db']['user']}:#{node['drupal']['db']['password']}@#{node['drupal']['db']['host']}/#{node['drupal']['db']['database']}"
-      # not_if "#{node['drupal']['drush']['dir']}/drush -r #{node['drupal']['dir']} status | grep #{node['drupal']['version']}"
+      not_if "#{node['drupal']['drush']['dir']}/drush -r #{node['drupal']['dir']} status | grep #{node['drupal']['version']}"
     end
   when 'postgresql'
     execute "download-and-install-drupal-to-postgresql" do
@@ -124,7 +124,7 @@ case node['drupal']['db']['type']
       command "#{node['drupal']['drush']['dir']}/drush -y dl drupal-#{node['drupal']['version']} --destination=#{File.dirname(node['drupal']['dir'])} --drupal-project-rename=#{File.basename(node['drupal']['dir'])} && \
       #{node['drupal']['drush']['dir']}/drush -y site-install -r #{node['drupal']['dir']} --account-name=#{node['drupal']['site']['admin']} --account-pass=#{node['drupal']['site']['pass']} --site-name=\"#{node['drupal']['site']['name']}\" \
       --db-url=pgsql://#{node['drupal']['db']['user']}:#{node['drupal']['db']['password']}@#{node['drupal']['db']['host']}:#{node['drupal']['db']['port']}/#{node['drupal']['db']['database']}"
-      # not_if "#{node['drupal']['drush']['dir']}/drush -r #{node['drupal']['dir']} status | grep #{node['drupal']['version']}"
+      not_if "#{node['drupal']['drush']['dir']}/drush -r #{node['drupal']['dir']} status | grep #{node['drupal']['version']}"
     end
 end
 
@@ -154,17 +154,47 @@ if node['drupal']['modules']
   end
 end
 
-web_app "drupal" do
-  template "drupal.conf.erb"
-  docroot node['drupal']['dir']
-  server_name server_fqdn
-  server_aliases node['fqdn']
+case node['drupal']['webserver']
+  when 'apache'
+    web_app "drupal" do
+      template "drupal.conf.apache.erb"
+      docroot node['drupal']['dir']
+      server_name server_fqdn
+      server_aliases node['fqdn']
+    end
+  when 'nginx'
+    template 'drupal.conf.nginx.erb' do
+      path "#{node[:nginx][:dir]}/sites-available/drupal"
+      source "drupal.conf.nginx.erb"
+      user 'vagrant' # @TODO
+      group 'vagrant' # @TODO
+      mode 00644
+      variables(
+        :server_port => node['drupal']['nginx']['port'],
+        :server_name => node['drupal']['nginx']['server_name'],
+        :location => node['drupal']['nginx']['location'],
+        :location_root => node['drupal']['dir'],
+        :fast_cgi_pass => node['drupal']['nginx']['fast_cgi_pass']
+      )
+      action :create
+    end
+    fpm_pool 'drupal' do
+      user 'vagrant'
+      group 'vagrant'
+    end
+    nginx_site 'drupal' do
+      enable true
+      # timing :delayed
+    end
 end
 
 include_recipe "drupal::cron"
 
-execute "disable-default-site" do
-   command "sudo a2dissite default"
-   notifies :reload, "service[apache2]", :delayed
-   only_if do File.exists? "#{node['apache']['dir']}/sites-enabled/default" end
+case node['drupal']['webserver']
+  when 'apache'
+    execute "disable-default-site" do
+      command "sudo a2dissite default"
+      notifies :reload, "service[apache2]", :delayed
+      only_if do File.exists? "#{node['apache']['dir']}/sites-enabled/default" end
+    end
 end
