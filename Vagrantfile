@@ -85,12 +85,16 @@ Vagrant.configure("2") do |config|
           :postgres => "postgres"
         }
       },
+      # Drupal settings
       :drupal => {
         :db => {
           :password => "drupalpass",
-          :type => "postgresql" # mysql|postgresql
+          :type => "mysql" # mysql|postgresql
         },
-        :webserver => "nginx", # apache|nginx
+        :webserver => "apache", # apache|nginx
+        :nginx => {
+          :server_name => 'cms.clakk.hu'
+        },
         :dir => "/vagrant/mysite"
       },
       :hosts => {

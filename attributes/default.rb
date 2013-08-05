@@ -19,40 +19,37 @@
 #
 
 default['drupal']['webserver'] = 'apache' # nginx|apache
+default['drupal']['port'] = '80'
 default['drupal']['db']['type'] = 'mysql' # postgresql|mysql
 
-default['drupal']['version'] = "7.22"
-default['drupal']['dir'] = "/var/www/drupal"
-default['drupal']['db']['database'] = "drupal"
-default['drupal']['db']['user'] = "drupal"
-default['drupal']['db']['host'] = "localhost"
-default['drupal']['db']['port'] = "5432"
-default['drupal']['site']['admin'] = "admin"
-default['drupal']['site']['pass'] = "drupaladmin"
-default['drupal']['site']['name'] = "Drupal7"
-default['drupal']['site']['host'] = "localhost"
+default['with_postfix'] = false # true|false
+default['with_cron'] = false    # true|false
 
-default['drupal']['apache']['port'] = "80"
+default['drupal']['version'] = '7.22'
+default['drupal']['dir'] = '/var/www/drupal'
+default['drupal']['db']['database'] = 'drupal'
+default['drupal']['db']['user'] = 'drupal'
+default['drupal']['db']['host'] = 'localhost'
 
+default['drupal']['site']['admin'] = 'admin'
+default['drupal']['site']['pass'] = 'drupaladmin'
+default['drupal']['site']['name'] = 'Drupal7'
+default['drupal']['site']['host'] = 'localhost'
 
-default['drupal']['nginx']['server_name'] = 'cms.clakk.hu'
-default['drupal']['nginx']['port'] = '80'
+default['drupal']['modules'] = ['views', 'webform']
+
+default['drupal']['nginx']['server_name'] = 'localhost'
 default['drupal']['nginx']['user'] = 'vagrant'
 default['drupal']['nginx']['group'] = 'vagrant'
 default['drupal']['nginx']['location'] = '/'
-default['nginx']['default_site_enabled'] = false
-
-default['php-fpm']['pool']['drupal']['user'] = 'vagrant'
-default['php-fpm']['pool']['drupal']['group'] = 'vagrant'
-
-# @TODO
-default['drupal']['nginx']['fast_cgi_pass'] = 'unix:/var/run/php-fpm-drupal.sock'
 
 default['php-fpm']['pools'] = ['drupal']
 
-default['php-fpm']['pool']['drupal']['listen'] = "/var/run/php-fpm-drupal.sock"
+default['php-fpm']['pool']['drupal']['user'] = 'vagrant'
+default['php-fpm']['pool']['drupal']['group'] = 'vagrant'
+default['php-fpm']['pool']['drupal']['listen'] = '/var/run/php-fpm-drupal.sock'
 default['php-fpm']['pool']['drupal']['allowed_clients'] = []
-default['php-fpm']['pool']['drupal']['process_manager'] = "dynamic"
+default['php-fpm']['pool']['drupal']['process_manager'] = 'dynamic'
 default['php-fpm']['pool']['drupal']['max_children'] = 5
 default['php-fpm']['pool']['drupal']['start_servers'] = 2
 default['php-fpm']['pool']['drupal']['min_spare_servers'] = 1
@@ -64,10 +61,27 @@ default['php-fpm']['pool']['drupal']['max_requests'] = 500
 set_unless['drupal']['db']['password'] = secure_password
 default['drupal']['src'] = Chef::Config[:file_cache_path]
 
-default['drupal']['drush']['version'] = "7.x-5.9"
+default['drupal']['drush']['version'] = '7.x-5.9'
+default['drupal']['drush']['checksum'] = \
+  '3acc2a2491fef987c17e85122f7d3cd0bc99cefd1bc70891ec3a1c4fd51dcceer'
+default['drupal']['drush']['dir'] = '/usr/local/drush'
 
-default['drupal']['drush']['checksum'] = "3acc2a2491fef987c17e85122f7d3cd0bc99cefd1bc70891ec3a1c4fd51dccee"
-default['drupal']['drush']['dir'] = "/usr/local/drush"
 
-default['drupal']['modules'] = ["views", "webform"]
+if default['php-fpm']['pool']['drupal']['listen'].start_with?('/')
+  # Listen to unix pipes
+  default['drupal']['nginx']['fast_cgi_pass'] = \
+    "unix:#{default['php-fpm']['pool']['drupal']['listen']}"
+else
+  default['drupal']['nginx']['fast_cgi_pass'] = \
+    default['php-fpm']['pool']['drupal']['listen']
+end
 
+if default['drupal']['db']['type'] = 'postgresql'
+  default['drupal']['db']['port'] = '5432'
+else
+  default['drupal']['db']['port'] = '3306'
+end
+
+default['drupal']['apache']['port'] = default['drupal']['port']
+default['drupal']['nginx']['port'] = default['drupal']['port']
+default['nginx']['default_site_enabled'] = false
