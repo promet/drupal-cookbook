@@ -20,13 +20,25 @@
 
 # @TODO remove after finalization
 # package 'git'
+
+::Chef::Log.info("webserver:#{node['drupal']['webserver']}")
+::Chef::Log.info("webserver:#{node['drupal']['db']['type']}")
+
 package 'tmux'
 package 'htop'
 package 'mc'
 
-case node['drupal']['webserver']
-  when 'apache' then include_recipe %w{apache2 apache2::mod_php5 apache2::mod_rewrite apache2::mod_expires}
-  when 'nginx' then include_recipe %w{nginx php-fpm}
+if node['drupal']['webserver'] == 'apache'
+  include_recipe %w{apache2 apache2::mod_php5 apache2::mod_rewrite apache2::mod_expires}
+elsif node['drupal']['webserver'] == 'nginx'
+  include_recipe %w{nginx php-fpm}
+else
+  log "Unsupported webserver" do
+    message <<-MSG
+      The webserver #{node['drupal']['webserver']} is not supported.
+    MSG
+    level :fatal
+  end
 end
 
 include_recipe 'php'
@@ -40,8 +52,10 @@ when 'rhel', 'fedora'
 end
 
 case node['drupal']['db']['type']
-  when 'mysql' then include_recipe 'php::module_mysql'
-  when 'postgresql' then include_recipe 'php::module_pgsql'
+  when 'mysql'
+    include_recipe 'php::module_mysql'
+  when 'postgresql'
+    include_recipe 'php::module_pgsql'
 end
 
 include_recipe "postfix"
@@ -50,82 +64,86 @@ include_recipe "drupal::drush"
 
 if node['drupal']['site']['host'] == "localhost"
   case node['drupal']['db']['type']
-    when 'mysql' then include_recipe "mysql::server"
-    when 'postgresql' then include_recipe 'postgresql::server'
+    when 'mysql'
+      include_recipe "mysql::server"
+    when 'postgresql'
+      include_recipe 'postgresql::server'
   end
 else
   case node['drupal']['db']['type']
-    when 'mysql' then include_recipe "mysql::client"
-    when 'postgresql' then include_recipe 'postgresql::client'
+    when 'mysql'
+      include_recipe "mysql::client"
+    when 'postgresql'
+      include_recipe 'postgresql::client'
   end
 end
 
-case node['drupal']['db']['type']
-  when 'mysql'
-    execute "install-drupal-privileges-to-mysql" do
-      command "/usr/bin/mysql -h #{node['drupal']['db']['host']} -u root -p#{node['mysql']['server_root_password']} < /etc/mysql/drupal-grants.sql"
-      action :nothing
-    end
+execute "install-drupal-privileges-to-mysql" do
+  only_if {node['drupal']['db']['type'] == 'mysql'}
+  command "/usr/bin/mysql -h #{node['drupal']['db']['host']} -u root -p#{node['mysql']['server_root_password']} < /etc/mysql/drupal-grants.sql"
+  action :nothing
+end
+template "/etc/mysql/drupal-grants-mysql.sql" do
+  only_if {node['drupal']['db']['type'] == 'mysql'}
+  path "/etc/mysql/drupal-grants.sql"
+  source "grants.mysql.sql.erb"
+  owner "root"
+  group "root"
+  mode "0600"
+  variables(
+    :user     => node['drupal']['db']['user'],
+    :password => node['drupal']['db']['password'],
+    :database => node['drupal']['db']['database'],
+    :host => node['drupal']['site']['host']
+  )
+  notifies :run, "execute[install-drupal-privileges-to-mysql]", :immediately
+end
+execute "create #{node['drupal']['db']['database']} database" do
+  only_if {node['drupal']['db']['type'] == 'mysql'}
+  command "/usr/bin/mysqladmin -h #{node['drupal']['db']['host']} -u root -p#{node['mysql']['server_root_password']} create #{node['drupal']['db']['database']}"
+  not_if "mysql -h #{node['drupal']['db']['host']} -u root -p#{node['mysql']['server_root_password']} --silent --skip-column-names --execute=\"show databases like '#{node['drupal']['db']['database']}'\" | grep #{node['drupal']['db']['database']}"
+end
 
-    template "/etc/mysql/drupal-grants-mysql.sql" do
-      path "/etc/mysql/drupal-grants.sql"
-      source "grants.mysql.sql.erb"
-      owner "root"
-      group "root"
-      mode "0600"
-      variables(
-        :user     => node['drupal']['db']['user'],
-        :password => node['drupal']['db']['password'],
-        :database => node['drupal']['db']['database'],
-        :host => node['drupal']['site']['host']
-      )
-      notifies :run, "execute[install-drupal-privileges-to-mysql]", :immediately
-    end
+execute "install-drupal-privileges-to-postgresql" do
+  only_if {node['drupal']['db']['type'] == 'postgresql'}
+  command "export PGPASSWORD=#{node['postgresql']['password']['postgres']} && psql -h #{node['drupal']['db']['host']} -p #{node['drupal']['db']['port']} -U postgres  < /tmp/grants.sql"
+  action :nothing
+end
 
-    execute "create #{node['drupal']['db']['database']} database" do
-      command "/usr/bin/mysqladmin -h #{node['drupal']['db']['host']} -u root -p#{node['mysql']['server_root_password']} create #{node['drupal']['db']['database']}"
-      not_if "mysql -h #{node['drupal']['db']['host']} -u root -p#{node['mysql']['server_root_password']} --silent --skip-column-names --execute=\"show databases like '#{node['drupal']['db']['database']}'\" | grep #{node['drupal']['db']['database']}"
-    end
-
-  when 'postgresql'
-    execute "install-drupal-privileges-to-postgresql" do
-      command "export PGPASSWORD=#{node[:postgresql][:password][:postgres]} && psql -h #{node['drupal']['db']['host']} -p #{node['drupal']['db']['port']} -U postgres  < /tmp/grants.sql"
-      action :nothing
-    end
-
-    template "/tmp/grants.sql" do
-      path "/tmp/grants.sql"
-      source "grants.pgsql.sql.erb"
-      # owner "root"
-      # group "root"
-      mode "0600"
-      variables(
-        :user     => node['drupal']['db']['user'],
-        :password => node['drupal']['db']['password'],
-        :database => node['drupal']['db']['database']
-      )
-      notifies :run, "execute[install-drupal-privileges-to-postgresql]", :immediately
-    end
+template "/tmp/grants.sql" do
+  only_if {node['drupal']['db']['type'] == 'postgresql'}
+  path "/tmp/grants.sql"
+  source "grants.pgsql.sql.erb"
+  # owner "root"
+  # group "root"
+  mode "0600"
+  variables(
+    :user     => node['drupal']['db']['user'],
+    :password => node['drupal']['db']['password'],
+    :database => node['drupal']['db']['database']
+  )
+  notifies :run, "execute[install-drupal-privileges-to-postgresql]", :immediately
 end
 
 
-case node['drupal']['db']['type']
-  when 'mysql'
-    execute "download-and-install-drupal-to-mysql" do
-      cwd  File.dirname(node['drupal']['dir'])
-      command "#{node['drupal']['drush']['dir']}/drush -y dl drupal-#{node['drupal']['version']} --destination=#{File.dirname(node['drupal']['dir'])} --drupal-project-rename=#{File.basename(node['drupal']['dir'])} && \
-      #{node['drupal']['drush']['dir']}/drush -y site-install -r #{node['drupal']['dir']} --account-name=#{node['drupal']['site']['admin']} --account-pass=#{node['drupal']['site']['pass']} --site-name=\"#{node['drupal']['site']['name']}\" \
-      --db-url=mysql://#{node['drupal']['db']['user']}:#{node['drupal']['db']['password']}@#{node['drupal']['db']['host']}/#{node['drupal']['db']['database']}"
-      not_if "#{node['drupal']['drush']['dir']}/drush -r #{node['drupal']['dir']} status | grep #{node['drupal']['version']}"
-    end
-  when 'postgresql'
-    execute "download-and-install-drupal-to-postgresql" do
-      cwd  File.dirname(node['drupal']['dir'])
-      command "#{node['drupal']['drush']['dir']}/drush -y dl drupal-#{node['drupal']['version']} --destination=#{File.dirname(node['drupal']['dir'])} --drupal-project-rename=#{File.basename(node['drupal']['dir'])} && \
-      #{node['drupal']['drush']['dir']}/drush -y site-install -r #{node['drupal']['dir']} --account-name=#{node['drupal']['site']['admin']} --account-pass=#{node['drupal']['site']['pass']} --site-name=\"#{node['drupal']['site']['name']}\" \
-      --db-url=pgsql://#{node['drupal']['db']['user']}:#{node['drupal']['db']['password']}@#{node['drupal']['db']['host']}:#{node['drupal']['db']['port']}/#{node['drupal']['db']['database']}"
-      not_if "#{node['drupal']['drush']['dir']}/drush -r #{node['drupal']['dir']} status | grep #{node['drupal']['version']}"
-    end
+execute "download-and-install-drupal-to-mysql" do
+  only_if {node['drupal']['db']['type'] == 'mysql'}
+  not_if "#{node['drupal']['drush']['dir']}/drush -r #{node['drupal']['dir']} status | grep #{node['drupal']['version']}"
+  cwd  File.dirname(node['drupal']['dir'])
+  command "#{node['drupal']['drush']['dir']}/drush -y dl drupal-#{node['drupal']['version']} --destination=#{File.dirname(node['drupal']['dir'])} --drupal-project-rename=#{File.basename(node['drupal']['dir'])} && \
+  #{node['drupal']['drush']['dir']}/drush -y site-install -r #{node['drupal']['dir']} --account-name=#{node['drupal']['site']['admin']} --account-pass=#{node['drupal']['site']['pass']} --site-name=\"#{node['drupal']['site']['name']}\" \
+  --db-url=mysql://#{node['drupal']['db']['user']}:#{node['drupal']['db']['password']}@#{node['drupal']['db']['host']}/#{node['drupal']['db']['database']}"
+  not_if "#{node['drupal']['drush']['dir']}/drush -r #{node['drupal']['dir']} status | grep #{node['drupal']['version']}"
+end
+
+execute "download-and-install-drupal-to-postgresql" do
+  only_if {node['drupal']['db']['type'] == 'postgresql'}
+  not_if "#{node['drupal']['drush']['dir']}/drush -r #{node['drupal']['dir']} status | grep #{node['drupal']['version']}"
+  cwd  File.dirname(node['drupal']['dir'])
+  command "#{node['drupal']['drush']['dir']}/drush -y dl drupal-#{node['drupal']['version']} --destination=#{File.dirname(node['drupal']['dir'])} --drupal-project-rename=#{File.basename(node['drupal']['dir'])} && \
+  #{node['drupal']['drush']['dir']}/drush -y site-install -r #{node['drupal']['dir']} --account-name=#{node['drupal']['site']['admin']} --account-pass=#{node['drupal']['site']['pass']} --site-name=\"#{node['drupal']['site']['name']}\" \
+  --db-url=pgsql://#{node['drupal']['db']['user']}:#{node['drupal']['db']['password']}@#{node['drupal']['db']['host']}:#{node['drupal']['db']['port']}/#{node['drupal']['db']['database']}"
+  not_if "#{node['drupal']['drush']['dir']}/drush -r #{node['drupal']['dir']} status | grep #{node['drupal']['version']}"
 end
 
 if node.has_key?("ec2")
@@ -154,47 +172,51 @@ if node['drupal']['modules']
   end
 end
 
-case node['drupal']['webserver']
-  when 'apache'
-    web_app "drupal" do
-      template "drupal.conf.apache.erb"
-      docroot node['drupal']['dir']
-      server_name server_fqdn
-      server_aliases node['fqdn']
-    end
-  when 'nginx'
-    template 'drupal.conf.nginx.erb' do
-      path "#{node[:nginx][:dir]}/sites-available/drupal"
-      source "drupal.conf.nginx.erb"
-      user 'vagrant' # @TODO
-      group 'vagrant' # @TODO
-      mode 00644
-      variables(
-        :server_port => node['drupal']['nginx']['port'],
-        :server_name => node['drupal']['nginx']['server_name'],
-        :location => node['drupal']['nginx']['location'],
-        :location_root => node['drupal']['dir'],
-        :fast_cgi_pass => node['drupal']['nginx']['fast_cgi_pass']
-      )
-      action :create
-    end
-    fpm_pool 'drupal' do
-      user 'vagrant'
-      group 'vagrant'
-    end
-    nginx_site 'drupal' do
-      enable true
-      # timing :delayed
-    end
+
+if node['drupal']['webserver'] == 'apache'
+  web_app "drupal" do
+    template "drupal.conf.apache.erb"
+    docroot node['drupal']['dir']
+    server_name server_fqdn
+    server_aliases node['fqdn']
+  end
+
+  execute "disable-default-site" do
+    only_if { File.exists? "#{node['apache']['dir']}/sites-enabled/default" }
+    command "sudo a2dissite default"
+    notifies :reload, "service[apache2]", :delayed
+  end
+end
+
+if node['drupal']['webserver'] == 'nginx'
+
+  template 'drupal.conf.nginx.erb' do
+    # only_if {node['drupal']['webserver'] == 'nginx'}
+    path "#{node['nginx']['dir']}/sites-available/drupal"
+    source "drupal.conf.nginx.erb"
+    user node['drupal']['nginx']['user']
+    group node['drupal']['nginx']['group']
+    mode 00644
+    variables(
+      :server_port => node['drupal']['nginx']['port'],
+      :server_name => node['drupal']['nginx']['server_name'],
+      :location => node['drupal']['nginx']['location'],
+      :location_root => node['drupal']['dir'],
+      :fast_cgi_pass => node['drupal']['nginx']['fast_cgi_pass']
+    )
+    action :create
+  end
+
+  fpm_pool 'drupal' do
+    # only_if {node['drupal']['webserver'] == 'nginx'}
+    user node['php-fpm']['pool']['drupal']['user']
+    group node['php-fpm']['pool']['drupal']['group']
+  end
+  nginx_site 'drupal' do
+    # only_if {node['drupal']['webserver'] == 'nginx'}
+    enable true
+  end
 end
 
 include_recipe "drupal::cron"
 
-case node['drupal']['webserver']
-  when 'apache'
-    execute "disable-default-site" do
-      command "sudo a2dissite default"
-      notifies :reload, "service[apache2]", :delayed
-      only_if do File.exists? "#{node['apache']['dir']}/sites-enabled/default" end
-    end
-end

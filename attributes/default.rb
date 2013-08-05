@@ -18,8 +18,8 @@
 # limitations under the License.
 #
 
-default['drupal']['webserver'] = 'nginx' # nginx|apache
-default['drupal']['db']['type'] = 'postgresql' # postgresql|mysql
+default['drupal']['webserver'] = 'apache' # nginx|apache
+default['drupal']['db']['type'] = 'mysql' # postgresql|mysql
 
 default['drupal']['version'] = "7.22"
 default['drupal']['dir'] = "/var/www/drupal"
@@ -37,6 +37,8 @@ default['drupal']['apache']['port'] = "80"
 
 default['drupal']['nginx']['server_name'] = 'cms.clakk.hu'
 default['drupal']['nginx']['port'] = '80'
+default['drupal']['nginx']['user'] = 'vagrant'
+default['drupal']['nginx']['group'] = 'vagrant'
 default['drupal']['nginx']['location'] = '/'
 default['nginx']['default_site_enabled'] = false
 
@@ -50,8 +52,6 @@ default['php-fpm']['pools'] = ['drupal']
 
 default['php-fpm']['pool']['drupal']['listen'] = "/var/run/php-fpm-drupal.sock"
 default['php-fpm']['pool']['drupal']['allowed_clients'] = []
-default['php-fpm']['pool']['drupal']['user'] = 'vagrant' # @TODO
-default['php-fpm']['pool']['drupal']['group'] = 'vagrant' # @TODO
 default['php-fpm']['pool']['drupal']['process_manager'] = "dynamic"
 default['php-fpm']['pool']['drupal']['max_children'] = 5
 default['php-fpm']['pool']['drupal']['start_servers'] = 2

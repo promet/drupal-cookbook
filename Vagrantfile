@@ -87,14 +87,17 @@ Vagrant.configure("2") do |config|
       },
       :drupal => {
         :db => {
-          :password => "drupalpass"
+          :password => "drupalpass",
+          :type => "postgresql" # mysql|postgresql
         },
+        :webserver => "nginx", # apache|nginx
         :dir => "/vagrant/mysite"
       },
       :hosts => {
         :localhost_aliases => ["drupal.vbox.local", "dev-site.vbox.local"]
       }
     }
+    chef.log_level = :debug
     chef.run_list = [
       "recipe[drupal::default]"
     ]
