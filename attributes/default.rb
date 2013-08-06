@@ -1,5 +1,5 @@
-#
 # Author:: Marius Ducea (marius@promethost.com)
+# Contributor:: Gabor Bognar (gbognar@seisachtheia.com)
 # Cookbook Name:: drupal
 # Attributes:: drupal
 #
@@ -18,12 +18,12 @@
 # limitations under the License.
 #
 
-default['drupal']['webserver'] = 'apache' # nginx|apache
+default['drupal']['webserver'] = 'apache'
 default['drupal']['port'] = '80'
-default['drupal']['db']['type'] = 'mysql' # postgresql|mysql
+default['drupal']['db']['type'] = 'mysql'
 
-default['with_postfix'] = false # true|false
-default['with_cron'] = false    # true|false
+default['with_postfix'] = false
+default['with_cron'] = false
 
 default['drupal']['version'] = '7.22'
 default['drupal']['dir'] = '/var/www/drupal'
