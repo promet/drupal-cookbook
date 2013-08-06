@@ -35,9 +35,6 @@ unless %w(mysql postgresql).include? node['drupal']['db']['type']
   )
 end
 
-Chef::Log.info("Webserver:#{node['drupal']['webserver']}")
-Chef::Log.info("Database :#{node['drupal']['db']['type']}")
-
 if node['drupal']['webserver'] == 'apache'
   include_recipe %w{
       apache2
@@ -163,6 +160,10 @@ end
 
 include_recipe 'drupal::drush'
 
+directory "#{node['drupal']['dir']}/sites/default/files" do
+  mode '0777'
+  action :create
+end
 
 execute 'download-and-install-drupal-to-mysql' do
   only_if {node['drupal']['db']['type'] == 'mysql'}
@@ -219,10 +220,6 @@ else
   server_fqdn = node['fqdn']
 end
 
-directory "#{node['drupal']['dir']}/sites/default/files" do
-  mode '0777'
-  action :create
-end
 
 if node['drupal']['modules']
   node['drupal']['modules'].each do |m|
@@ -263,7 +260,7 @@ if node['drupal']['webserver'] == 'nginx'
     mode 00644
     variables(
       :server_port => node['drupal']['nginx']['port'],
-      :server_name => node['drupal']['nginx']['server_name'],
+      :server_name => server_fqdn,
       :location => node['drupal']['nginx']['location'],
       :location_root => node['drupal']['dir'],
       :fast_cgi_pass => node['drupal']['nginx']['fast_cgi_pass']

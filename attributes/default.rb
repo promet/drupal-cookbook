@@ -38,7 +38,6 @@ default['drupal']['site']['host'] = 'localhost'
 
 default['drupal']['modules'] = ['views', 'webform']
 
-default['drupal']['nginx']['server_name'] = 'localhost'
 default['drupal']['nginx']['user'] = 'vagrant'
 default['drupal']['nginx']['group'] = 'vagrant'
 default['drupal']['nginx']['location'] = '/'
@@ -76,7 +75,7 @@ else
     default['php-fpm']['pool']['drupal']['listen']
 end
 
-if default['drupal']['db']['type'] = 'postgresql'
+if default['drupal']['db']['type'] == 'postgresql'
   default['drupal']['db']['port'] = '5432'
 else
   default['drupal']['db']['port'] = '3306'
