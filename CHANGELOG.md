@@ -1,3 +1,10 @@
+## v2.0.0:
+
+* upgrade to the latest stable branch for drush (7.x-5.9)
+* install by default latest stable drupal version (7.22)
+* support postgresql as a database server
+* support nginx as a webserver
+
 ## v1.1.0:
 
 * fix bug caused by the removal of `mysql_database` LWRP from the mysql cookbook starting with version 1.2.0

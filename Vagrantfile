@@ -73,7 +73,7 @@ Vagrant.configure("2") do |config|
   config.vm.provision :chef_solo do |chef|
     chef.json = {
       :www_root => '/vagrant/public',
-      # If using mysql as db
+      # # If using mysql as db
       :mysql => {
         :server_root_password => "rootpass",
         :server_repl_password => "replpass",
@@ -92,10 +92,10 @@ Vagrant.configure("2") do |config|
           :type => "mysql" # mysql|postgresql
         },
         :webserver => "apache", # apache|nginx
-        :nginx => {
-          :server_name => 'cms.clakk.hu'
-        },
-        :dir => "/vagrant/mysite"
+        # :nginx => {
+        #   :server_name => 'cms.clakk.hu'
+        # },
+        # :dir => "/vagrant/mysite"
       },
       :hosts => {
         :localhost_aliases => ["drupal.vbox.local", "dev-site.vbox.local"]

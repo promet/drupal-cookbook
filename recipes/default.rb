@@ -1,5 +1,5 @@
-#
 # Author:: Marius Ducea (marius@promethost.com)
+# Contributor:: Gabor Bognar (gbognar@seisachtheia.com)
 # Cookbook Name:: drupal
 # Recipe:: default
 #
@@ -16,7 +16,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
+
 
 # Exit codes
 UNSUPPORTED_WEBSERVER = 1
@@ -35,6 +35,8 @@ unless %w(mysql postgresql).include? node['drupal']['db']['type']
   )
 end
 
+Chef::Log.info("Webserver:#{node['drupal']['webserver']}")
+Chef::Log.info("Database :#{node['drupal']['db']['type']}")
 
 if node['drupal']['webserver'] == 'apache'
   include_recipe %w{
@@ -131,6 +133,9 @@ execute "create #{node['drupal']['db']['database']} database" do
 end
 
 
+file '/tmp/grants.sql' do
+  action :nothing
+end
 execute 'install-drupal-privileges-to-postgresql' do
   only_if {node['drupal']['db']['type'] == 'postgresql'}
   command <<-CMD
@@ -141,6 +146,7 @@ execute 'install-drupal-privileges-to-postgresql' do
       -U postgres  < /tmp/grants.sql
     CMD
   action :nothing
+  notifies :delete, 'file[/tmp/grants.sql]', :delayed
 end
 template "/tmp/grants.sql" do
   only_if {node['drupal']['db']['type'] == 'postgresql'}
@@ -156,6 +162,7 @@ template "/tmp/grants.sql" do
 end
 
 include_recipe 'drupal::drush'
+
 
 execute 'download-and-install-drupal-to-mysql' do
   only_if {node['drupal']['db']['type'] == 'mysql'}
@@ -204,6 +211,7 @@ execute 'download-and-install-drupal-to-postgresql' do
       --db-url="pgsql://#{node['drupal']['db']['user']}:#{node['drupal']['db']['password']}@#{node['drupal']['db']['host']}:#{node['drupal']['db']['port']}/#{node['drupal']['db']['database']}"
     CMD
 end
+
 
 if node.has_key?('ec2')
   server_fqdn = node['ec2']['public_hostname']

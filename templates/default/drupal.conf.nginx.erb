@@ -1,7 +1,5 @@
-# www to non-www redirect -- duplicate content is BAD:
-# https://github.com/h5bp/html5-boilerplate/blob/5370479476dceae7cc3ea105946536d6bc0ee468/.htaccess#L362
-# Choose between www and non-www, listen on the *wrong* one and redirect to
-# the right one -- http://wiki.nginx.org/Pitfalls#Server_Name
+# Generated from drupal.conf.nginx.erb
+#
 # For additional tuning, see
 #   http://wiki.nginx.org/Drupal
 #   and
@@ -24,17 +22,12 @@ server {
   location <%= @location %> {
       # This is cool because no php is touched for static content
       try_files $uri @rewrite;
-      } # location /
+  } # location /
+
   location @rewrite {
-    # You have 2 options here
-    # For D7 and above:
     # Clean URLs are handled in drupal_environment_initialize().
     rewrite ^ /index.php;
-    # For Drupal 6 and bwlow:
-    # Some modules enforce no slash (/) at the end of the URL
-    # Else this rewrite block wouldn't be needed (GlobalRedirect)
-    #rewrite ^/(.*)$ /index.php?q=$1;
-    } # location @rewrite
+  } # location @rewrite
 
   location ~ \.php$ {
     fastcgi_split_path_info ^(.+\.php)(/.+)$;
