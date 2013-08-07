@@ -21,6 +21,7 @@ Vagrant.configure("2") do |config|
   # network interface) by any external networks.
   config.vm.network :private_network, ip: "33.33.33.11"
 
+  config.vm.network :forwarded_port, guest:80, host: 8080
   # Create a public network, which generally matched to bridged network.
   # Bridged networks make the machine appear as another physical device on
   # your network.
@@ -46,7 +47,7 @@ Vagrant.configure("2") do |config|
     # vb.gui = true
 
     # Use VBoxManage to customize the VM. For example to change memory:
-    vb.customize ["modifyvm", :id, "--memory", "1024"]
+    vb.customize ["modifyvm", :id, "--memory", "512"]
   end
   #
   # View the documentation for the provider you're using for more
@@ -73,7 +74,7 @@ Vagrant.configure("2") do |config|
   config.vm.provision :chef_solo do |chef|
     chef.json = {
       :www_root => '/vagrant/public',
-      # If using mysql as db
+      # # If using mysql as db
       :mysql => {
         :server_root_password => "rootpass",
         :server_repl_password => "replpass",
@@ -92,7 +93,7 @@ Vagrant.configure("2") do |config|
           :type => "postgresql" # mysql|postgresql
         },
         :webserver => "nginx", # apache|nginx
-        # :dir => "/vagrant/mysite"
+        :dir => "/vagrant/mysite"
       },
       :hosts => {
         :localhost_aliases => ["drupal.vbox.local", "dev-site.vbox.local"]

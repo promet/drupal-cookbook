@@ -60,8 +60,20 @@ case node['platform_family']
 end
 case node['drupal']['db']['type']
   when 'mysql'
+    if node['drupal']['db']['port']
+      db_port = node['drupal']['db']['port']
+    else
+      db_port = '3306'
+    end
+    node.default['mysql']['port'] = db_port
     include_recipe 'php::module_mysql'
   when 'postgresql'
+    if node['drupal']['db']['port']
+      db_port = node['drupal']['db']['port']
+    else
+      db_port = '5432'
+    end
+    node.default['postgresql']['config']['port'] = db_port
     include_recipe 'php::module_pgsql'
 end
 
@@ -87,6 +99,7 @@ execute 'install-drupal-privileges-to-mysql' do
   command <<-CMD
     /usr/bin/mysql \
     -h #{node['drupal']['db']['host']} \
+    -P #{db_port} \
     -u root \
     -p#{node['mysql']['server_root_password']} \
     < /etc/mysql/drupal-grants.sql
@@ -113,6 +126,7 @@ execute "create #{node['drupal']['db']['database']} database" do
   not_if <<-COND
     mysql \
     -h #{node['drupal']['db']['host']} \
+    -P #{db_port} \
     -u root \
     -p#{node['mysql']['server_root_password']} \
     --silent \
@@ -123,6 +137,7 @@ execute "create #{node['drupal']['db']['database']} database" do
   command <<-CMD
     /usr/bin/mysqladmin \
     -h #{node['drupal']['db']['host']} \
+    -P #{db_port} \
     -u root \
     -p#{node['mysql']['server_root_password']} \
     create #{node['drupal']['db']['database']}
@@ -139,7 +154,7 @@ execute 'install-drupal-privileges-to-postgresql' do
     export PGPASSWORD=#{node['postgresql']['password']['postgres']} \
     && \
     psql -h #{node['drupal']['db']['host']} \
-      -p #{node['drupal']['db']['port']} \
+      -p #{db_port} \
       -U postgres  < /tmp/grants.sql
     CMD
   action :nothing
@@ -162,6 +177,7 @@ include_recipe 'drupal::drush'
 
 directory "#{node['drupal']['dir']}/sites/default/files" do
   mode '0777'
+  recursive true
   action :create
 end
 
@@ -185,7 +201,7 @@ execute 'download-and-install-drupal-to-mysql' do
       --account-name=#{node['drupal']['site']['admin']} \
       --account-pass=#{node['drupal']['site']['pass']} \
       --site-name=\"#{node['drupal']['site']['name']}\" \
-      --db-url="mysql://#{node['drupal']['db']['user']}:#{node['drupal']['db']['password']}@#{node['drupal']['db']['host']}:#{node['drupal']['db']['port']}/#{node['drupal']['db']['database']}"
+      --db-url="mysql://#{node['drupal']['db']['user']}:#{node['drupal']['db']['password']}@#{node['drupal']['db']['host']}:#{db_port}/#{node['drupal']['db']['database']}"
     CMD
 end
 
@@ -209,7 +225,7 @@ execute 'download-and-install-drupal-to-postgresql' do
       --account-name=#{node['drupal']['site']['admin']} \
       --account-pass=#{node['drupal']['site']['pass']} \
       --site-name=\"#{node['drupal']['site']['name']}\" \
-      --db-url="pgsql://#{node['drupal']['db']['user']}:#{node['drupal']['db']['password']}@#{node['drupal']['db']['host']}:#{node['drupal']['db']['port']}/#{node['drupal']['db']['database']}"
+      --db-url="pgsql://#{node['drupal']['db']['user']}:#{node['drupal']['db']['password']}@#{node['drupal']['db']['host']}:#{db_port}/#{node['drupal']['db']['database']}"
     CMD
 end
 

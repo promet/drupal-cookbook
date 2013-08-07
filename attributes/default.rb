@@ -75,11 +75,6 @@ else
     default['php-fpm']['pool']['drupal']['listen']
 end
 
-if default['drupal']['db']['type'] == 'postgresql'
-  default['drupal']['db']['port'] = '5432'
-else
-  default['drupal']['db']['port'] = '3306'
-end
 
 default['drupal']['apache']['port'] = default['drupal']['port']
 default['drupal']['nginx']['port'] = default['drupal']['port']
