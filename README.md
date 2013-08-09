@@ -8,9 +8,9 @@ Requirements
 
 ## Platform:
 
-Tested on Debian Wheezy. As long as the required cookbooks work
+Tested on Debian Wheezy (7.1) and Ubuntu 13.04. As long as the required cookbooks work
 (php, php-fpm, apache/nginx, mysql/postgres) it should work just fine on any
-other distributions.
+other distribution.
 
 ## Cookbooks:
 
@@ -47,15 +47,19 @@ Opscode cookbooks (http://github.com/opscode/cookbooks/tree/master)
 
 # USAGE:
 
-Include the drupal recipe to install drupal on your system; this will enable also the drupal cron:
+Include the drupal recipe to install Drupal on your system; this will enable also the drupal cron:
 
   include_recipe "drupal"
 
 Further information is present in the metadata.rb file.
 
-# Note:
+# NOTES:
 
-Some ideas and naming convenvions were taken from the drupal-cookbok by RiotGames (https://github.com/RiotGames/drupal-cookbook)
+* If the en_US.UTF-8 is not among the locales present on the target OS the
+convergence will fail.i
+* As a default the recipe installs postfix. If you decide not to install it,
+see https://drupal.org/node/1826652 for possible solutions.
+* Some ideas and naming convenvions were taken from the drupal-cookbok by RiotGames (https://github.com/RiotGames/drupal-cookbook)
 
 License and Author
 ==================
