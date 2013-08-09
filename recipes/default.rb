@@ -144,7 +144,6 @@ execute "create #{node['drupal']['db']['database']} database" do
     CMD
 end
 
-
 file '/tmp/grants.sql' do
   action :nothing
 end
@@ -173,14 +172,25 @@ template "/tmp/grants.sql" do
   notifies :run, 'execute[install-drupal-privileges-to-postgresql]', :immediately
 end
 
+if node['with_postfix']
+  include_recipe 'postfix'
+end
+
+
 include_recipe 'drupal::drush'
 
-directory "#{node['drupal']['dir']}/sites/default/files" do
-  mode '0777'
+
+directory "#{node['drupal']['dir']}" do
+  not_if { Dir.exist? node['drupal']['dir'] }
+  mode '0744'
+  # owner (node['drupal']['webserver'] == 'apache' ?
+      # node['apache']['user'] : node['php-fpm']['pool']['drupal']['user'])
+  # group (
+      # node['drupal']['webserver'] == 'apache' ?
+      # node['apache']['group'] : node['php-fpm']['pool']['drupal']['group'])
   recursive true
   action :create
 end
-
 execute 'download-and-install-drupal-to-mysql' do
   only_if {node['drupal']['db']['type'] == 'mysql'}
   not_if <<-COND
@@ -230,12 +240,16 @@ execute 'download-and-install-drupal-to-postgresql' do
 end
 
 
-if node.has_key?('ec2')
-  server_fqdn = node['ec2']['public_hostname']
-else
-  server_fqdn = node['fqdn']
+directory "#{node['drupal']['dir']}/sites/default/files" do
+  mode '0744'
+  owner (node['drupal']['webserver'] == 'apache' ?
+      node['apache']['user'] : node['php-fpm']['pool']['drupal']['user'])
+  group (
+      node['drupal']['webserver'] == 'apache' ?
+      node['apache']['group'] : node['php-fpm']['pool']['drupal']['group'])
+  recursive true
+  action :create
 end
-
 
 if node['drupal']['modules']
   node['drupal']['modules'].each do |m|
@@ -252,6 +266,12 @@ if node['drupal']['modules']
   end
 end
 
+
+if node.has_key?('ec2')
+  server_fqdn = node['ec2']['public_hostname']
+else
+  server_fqdn = node['fqdn']
+end
 
 if node['drupal']['webserver'] == 'apache'
   web_app 'drupal' do
@@ -296,7 +316,4 @@ if node['with_cron']
   include_recipe 'drupal::cron'
 end
 
-if node['with_postfix']
-  include_recipe 'postfix'
-end
 

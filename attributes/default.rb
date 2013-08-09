@@ -22,8 +22,8 @@ default['drupal']['webserver'] = 'apache'
 default['drupal']['port'] = '80'
 default['drupal']['db']['type'] = 'mysql'
 
-default['with_postfix'] = false
-default['with_cron'] = false
+default['with_postfix'] = true
+default['with_cron'] = true
 
 default['drupal']['version'] = '7.22'
 default['drupal']['dir'] = '/var/www/drupal'
