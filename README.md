@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/GBognar/drupal-cookbook.png)](https://travis-ci.org/GBognar/drupal-cookbook)
+
 Description
 ===========
 
