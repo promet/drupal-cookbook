@@ -180,7 +180,7 @@ end
 include_recipe 'drupal::drush'
 
 
-directory "#{node['drupal']['dir']}" do
+directory node['drupal']['dir'] do
   not_if { Dir.exist? node['drupal']['dir'] }
   mode '0744'
   # owner (node['drupal']['webserver'] == 'apache' ?
