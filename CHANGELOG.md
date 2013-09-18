@@ -1,3 +1,21 @@
+## v1.1.6:
+
+* hostsfile to manage /etc/hosts
+
+## v1.1.5:
+
+* Rework dependencies and sequence to support non-root credentials for mysql
+* Set permissions on docroot
+* Restart Apache if necessary
+
+## v1.1.4:
+
+* Allow us to use another drush cookbook
+
+## v1.1.3:
+
+* Don't install drush by default
+
 ## v1.1.2:
 
 * Default to 7.23
