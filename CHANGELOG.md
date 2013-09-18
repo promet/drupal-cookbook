@@ -1,3 +1,9 @@
+## v1.1.2:
+
+* Default to 7.23
+* Consider 127.0.0.1 localhost also
+* 
+
 ## v1.1.0:
 
 * fix bug caused by the removal of `mysql_database` LWRP from the mysql cookbook starting with version 1.2.0
