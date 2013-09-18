@@ -143,6 +143,10 @@ cfg_drupal = execute "configure-drupal" do
   notifies :restart, "service[apache2]", :delayed
 end
 
+hostsfile_entry "#{node[:ipaddress]}" do
+  hostname  node['drupal']['server_name']
+end
+
 directory "#{node['drupal']['dir']}/sites/default/files" do
   mode "0755"
   owner node['drupal']['owner']

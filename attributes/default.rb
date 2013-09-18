@@ -42,7 +42,7 @@ default['drupal']['drush']['version'] = "7.x-5.8"
 default['drupal']['drush']['checksum'] = "15dd85f04c49b4a896b02dd6960d3140f3ae680bab3eea5d3aba27be0481e480"
 default['drupal']['drush']['dir'] = "/usr/local/drush"
 
-default['drupal']['modules'] = ["views", "webform"]
+default['drupal']['modules'] = ["ctools", "views", "webform"]
 
 default['drupal']['sites']['default']['settings']['template'] = false
 default['drupal']['sites']['default']['settings']['cookbook'] = 'drupal'

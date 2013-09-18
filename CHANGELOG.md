@@ -1,3 +1,9 @@
+## v1.1.7:
+
+* Correct hostsfile_entry name
+* ctools module installed by default because of webform
+* patches support
+
 ## v1.1.6:
 
 * hostsfile to manage /etc/hosts
