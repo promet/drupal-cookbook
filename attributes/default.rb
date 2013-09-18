@@ -20,6 +20,8 @@
 
 default['drupal']['version'] = "7.23"
 default['drupal']['dir'] = "/var/www/drupal"
+default['drupal']['owner'] = "root"
+default['drupal']['group'] = "root"
 default['drupal']['db']['database'] = "drupal"
 default['drupal']['db']['user'] = "drupal"
 default['drupal']['db']['host'] = "localhost"
@@ -42,3 +44,5 @@ default['drupal']['drush']['dir'] = "/usr/local/drush"
 
 default['drupal']['modules'] = ["views", "webform"]
 
+default['drupal']['sites']['default']['settings']['template'] = false
+default['drupal']['sites']['default']['settings']['cookbook'] = 'drupal'
