@@ -19,27 +19,31 @@
 #
 include_recipe "drupal::default"
 
-include_recipe %w{php php::module_mysql php::module_gd}
+unless node['drupal']['drush']['recipe'] == 'own'
+  include_recipe "drush"
+else
+  include_recipe %w{php php::module_mysql php::module_gd}
 
-remote_file "#{node['drupal']['src']}/drush-#{node['drupal']['drush']['version']}.tar.gz" do
-  checksum node['drupal']['drush']['checksum']
-  source "http://ftp.drupal.org/files/projects/drush-#{node['drupal']['drush']['version']}.tar.gz"
-  mode "0644"
-end
+  remote_file "#{node['drupal']['src']}/drush-#{node['drupal']['drush']['version']}.tar.gz" do
+    checksum node['drupal']['drush']['checksum']
+    source "http://ftp.drupal.org/files/projects/drush-#{node['drupal']['drush']['version']}.tar.gz"
+    mode "0644"
+  end
 
-directory node['drupal']['drush']['dir'] do
-  owner "root"
-  group "root"
-  mode "0755"
-  action :create
-end
+  directory node['drupal']['drush']['dir'] do
+    owner "root"
+    group "root"
+    mode "0755"
+    action :create
+  end
 
-execute "untar-drush" do
-  cwd node['drupal']['drush']['dir']
-  command "tar --strip-components 1 -xzf #{node['drupal']['src']}/drush-#{node['drupal']['drush']['version']}.tar.gz"
-  not_if "/usr/local/bin/drush status drush-version --pipe | grep #{node['drupal']['drush']['version']}"
-end
+  execute "untar-drush" do
+    cwd node['drupal']['drush']['dir']
+    command "tar --strip-components 1 -xzf #{node['drupal']['src']}/drush-#{node['drupal']['drush']['version']}.tar.gz"
+    not_if "/usr/local/bin/drush status drush-version --pipe | grep #{node['drupal']['drush']['version']}"
+  end
 
-link "/usr/local/bin/drush" do
-  to "#{node['drupal']['drush']['dir']}/drush"
+  link "/usr/local/bin/drush" do
+    to "#{node['drupal']['drush']['dir']}/drush"
+  end
 end
