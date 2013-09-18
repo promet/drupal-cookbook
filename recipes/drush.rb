@@ -17,6 +17,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+include_recipe "drupal::default"
 
 include_recipe %w{php php::module_mysql php::module_gd}
 
