@@ -204,11 +204,13 @@ if node['drupal']['modules']
 
 end
 
+web_app_enable = (node['drupal']['web_app']['enable'] and !!node['drupal']['web_app']['enable'] == node['drupal']['web_app']['enable']) ? node['drupal']['web_app']['enable'] : node['drupal']['web_app']['enable'].downcase.match(%r/true|1|on|enable|yes/)
 web_app "drupal" do
   template "drupal.conf.erb"
   docroot node['drupal']['dir']
   server_name node['drupal']['server_name']
   server_aliases node['fqdn']
+  enable web_app_enable
 end
 
 include_recipe "drupal::cron"

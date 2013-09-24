@@ -31,6 +31,7 @@ default['drupal']['site']['name'] = "Drupal7"
 default['drupal']['site']['host'] = "localhost"
 default['drupal']['apache']['port'] = "80"
 default['drupal']['server_name'] = fqdn
+default['drupal']['web_app']['enable'] = true
 
 ::Chef::Node.send(:include, Opscode::OpenSSL::Password)
 
