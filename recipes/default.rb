@@ -25,10 +25,10 @@ include_recipe "drupal::drush"
 
 # Centos does not include the php-dom extension in it's minimal php install.
 case node['platform_family']
-when 'rhel', 'fedora'
-  package 'php-dom' do
-    action :install
-  end
+  when 'rhel', 'fedora'
+    package 'php-dom' do
+      action :install
+    end
 end
 
 if node['drupal']['db']['driver'] == 'mysql'
@@ -55,10 +55,10 @@ if node['drupal']['db']['driver'] == 'mysql'
     group "root"
     mode "0600"
     variables(
-      :user     => node['drupal']['db']['user'],
-      :password => node['drupal']['db']['password'],
-      :database => node['drupal']['db']['database'],
-      :host => node['drupal']['site']['host']
+        :user     => node['drupal']['db']['user'],
+        :password => node['drupal']['db']['password'],
+        :database => node['drupal']['db']['database'],
+        :host => node['drupal']['site']['host']
     )
     notifies :run, "execute[mysql-install-drupal-privileges]", :immediately
   end
@@ -178,14 +178,16 @@ end
 execute "#{node['drupal']['dir']}-permissions" do
   action :nothing
   command "
-/bin/chown -R root #{node['drupal']['dir']};
-/bin/chgrp -R root #{node['drupal']['dir']};
+# user/group owns everything
+/bin/chown -R #{node['drupal']['owner']}:#{node['drupal']['group']} #{node['drupal']['dir']};
+# Directories can be traversed
 /bin/find #{node['drupal']['dir']} -type d -exec /bin/chmod u=rwx,g=rx,o= {} \\; ;
+# And files are writeable only by owner and read-only for group
 /bin/find #{node['drupal']['dir']} -type f -exec /bin/chmod u=rw,g=r,o= {} \\; ;
-/bin/find #{node['drupal']['dir']}/sites -type d -name files -exec /bin/chown -R #{node['drupal']['owner']} {} \\; ;
-/bin/find #{node['drupal']['dir']}/sites -type d -name files -exec /bin/chgrp -R #{node['drupal']['group']} {} \\; ;
+# sites directories writeable+negotiable by owner and group
 /bin/find #{node['drupal']['dir']}/sites -type d -name files -exec /bin/chmod ug=rwx,o= {} \\; ;
-for x in  #{node['drupal']['dir']}/sites/*/files; do
+# sites/*/files directories negotiable and readable by all and writeable by owner/group
+for x in #{node['drupal']['dir']}/sites/*/files; do
 	/bin/find ${x} -type d -exec /bin/chmod ug=rwx,o= '{}' \\; ;
 	/bin/find ${x} -type f -exec /bin/chmod ug=rw,o= '{}' \\; ;
 done ;
@@ -228,9 +230,9 @@ end
 include_recipe "drupal::cron"
 
 execute "disable-default-site" do
-   command "sudo a2dissite default"
-   notifies :reload, "service[apache2]", :delayed
-   only_if do File.exists? "#{node['apache']['dir']}/sites-enabled/default" end
+  command "sudo a2dissite default"
+  notifies :reload, "service[apache2]", :delayed
+  only_if do File.exists? "#{node['apache']['dir']}/sites-enabled/default" end
 end
 
 if cfg_drupal.updated_by_last_action?

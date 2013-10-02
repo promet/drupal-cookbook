@@ -1,3 +1,7 @@
+## v1.1.10:
+
+* Finetune the Drupal docroot file and directory permissions
+
 ## v1.1.9:
 
 * Standardize the default[:drupal][:db] array
