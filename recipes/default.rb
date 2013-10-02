@@ -173,10 +173,15 @@ execute "#{node['drupal']['dir']}-permissions" do
   command "
 /bin/chown -R root #{node['drupal']['dir']};
 /bin/chgrp -R root #{node['drupal']['dir']};
-/bin/find #{node['drupal']['dir']} -type d -exec chmod 0755 {} \\; ;
-/bin/find #{node['drupal']['dir']} -type f -exec chmod 0644 {} \\; ;
-/bin/chown -R #{node['drupal']['owner']} #{node['drupal']['dir']}/sites/default/files
-/bin/chgrp -R #{node['drupal']['group']} #{node['drupal']['dir']}/sites/default/files
+/bin/find #{node['drupal']['dir']} -type d -exec /bin/chmod u=rwx,g=rx,o= {} \\; ;
+/bin/find #{node['drupal']['dir']} -type f -exec /bin/chmod u=rw,g=r,o= {} \\; ;
+/bin/find #{node['drupal']['dir']}/sites -type d -name files -exec /bin/chown -R #{node['drupal']['owner']} {} \\; ;
+/bin/find #{node['drupal']['dir']}/sites -type d -name files -exec /bin/chgrp -R #{node['drupal']['group']} {} \\; ;
+/bin/find #{node['drupal']['dir']}/sites -type d -name files -exec /bin/chmod ug=rwx,o= {} \\; ;
+for x in  #{node['drupal']['dir']}/sites/*/files; do
+	/bin/find ${x} -type d -exec /bin/chmod ug=rwx,o= '{}' \\; ;
+	/bin/find ${x} -type f -exec /bin/chmod ug=rw,o= '{}' \\; ;
+done ;
 "
   notifies :restart, "service[apache2]", :delayed
 end

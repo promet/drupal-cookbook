@@ -1,3 +1,8 @@
+## v1.1.8:
+
+* Set Drupal docroot permissions correctly
+* Allow web_app to be disabled
+
 ## v1.1.7:
 
 * Correct hostsfile_entry name
