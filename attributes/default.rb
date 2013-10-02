@@ -30,6 +30,8 @@ default['drupal']['db']['host'] = "localhost"
 default['drupal']['db']['port'] = "3306"
 default['drupal']['db']['prefix'] = ""
 #default['drupal']['db']['password'] = "localhost"
+
+::Chef::Node.send(:include, Opscode::OpenSSL::Password)
 set_unless['drupal']['db']['password'] = secure_password
 
 default['drupal']['site']['admin'] = "admin"
@@ -40,8 +42,6 @@ default['drupal']['site']['host'] = "localhost"
 default['drupal']['apache']['port'] = "80"
 default['drupal']['server_name'] = fqdn
 default['drupal']['web_app']['enable'] = true
-
-::Chef::Node.send(:include, Opscode::OpenSSL::Password)
 
 default['drupal']['src'] = Chef::Config[:file_cache_path]
 
