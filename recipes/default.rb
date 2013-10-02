@@ -31,35 +31,42 @@ when 'rhel', 'fedora'
   end
 end
 
-if node['drupal']['site']['host'] == "localhost" or node['drupal']['site']['host'] == "127.0.0.1"
-  include_recipe "mysql::server"
+if node['drupal']['db']['driver'] == 'mysql'
+  if node['drupal']['site']['host'] == "localhost" or node['drupal']['site']['host'] == "127.0.0.1"
+    include_recipe "mysql::server"
+  else
+    include_recipe "mysql::client"
+  end
+
+  execute "create #{node['drupal']['db']['database']} database" do
+    command "/usr/bin/mysqladmin -h #{node['drupal']['db']['host']} -u root -p#{node['mysql']['server_root_password']} create #{node['drupal']['db']['database']}"
+    not_if "mysql -h #{node['drupal']['db']['host']} -u root -p#{node['mysql']['server_root_password']} --silent --skip-column-names --execute=\"show databases like '#{node['drupal']['db']['database']}'\" | grep #{node['drupal']['db']['database']}"
+  end
+
+  execute "mysql-install-drupal-privileges" do
+    command "/usr/bin/mysql -h #{node['drupal']['db']['host']} -u root -p#{node['mysql']['server_root_password']} < /etc/mysql/drupal-grants.sql"
+    action :nothing
+  end
+
+  template "/etc/mysql/drupal-grants.sql" do
+    path "/etc/mysql/drupal-grants.sql"
+    source "grants.sql.erb"
+    owner "root"
+    group "root"
+    mode "0600"
+    variables(
+      :user     => node['drupal']['db']['user'],
+      :password => node['drupal']['db']['password'],
+      :database => node['drupal']['db']['database'],
+      :host => node['drupal']['site']['host']
+    )
+    notifies :run, "execute[mysql-install-drupal-privileges]", :immediately
+  end
 else
-  include_recipe "mysql::client"
-end
-
-execute "create #{node['drupal']['db']['database']} database" do
-  command "/usr/bin/mysqladmin -h #{node['drupal']['db']['host']} -u root -p#{node['mysql']['server_root_password']} create #{node['drupal']['db']['database']}"
-  not_if "mysql -h #{node['drupal']['db']['host']} -u root -p#{node['mysql']['server_root_password']} --silent --skip-column-names --execute=\"show databases like '#{node['drupal']['db']['database']}'\" | grep #{node['drupal']['db']['database']}"
-end
-
-execute "mysql-install-drupal-privileges" do
-  command "/usr/bin/mysql -h #{node['drupal']['db']['host']} -u root -p#{node['mysql']['server_root_password']} < /etc/mysql/drupal-grants.sql"
-  action :nothing
-end
-
-template "/etc/mysql/drupal-grants.sql" do
-  path "/etc/mysql/drupal-grants.sql"
-  source "grants.sql.erb"
-  owner "root"
-  group "root"
-  mode "0600"
-  variables(
-    :user     => node['drupal']['db']['user'],
-    :password => node['drupal']['db']['password'],
-    :database => node['drupal']['db']['database'],
-    :host => node['drupal']['site']['host']
-  )
-  notifies :run, "execute[mysql-install-drupal-privileges]", :immediately
+  log "drupal-database-driver" do
+    message "You database driver (#{node['drupal']['db']['driver']}) is not supported here!"
+    level :error
+  end
 end
 
 #require '/opt/chef/embedded/lib/ruby/gems/1.9.1/gems/awesome_print-1.1.0/lib/awesome_print.rb'
@@ -114,9 +121,9 @@ else
         'username' => '#{node['drupal']['db']['user']}',
         'password' => '#{node['drupal']['db']['password']}',
         'host'     => '#{node['drupal']['db']['host']}',
-        'port' => '',
-        'driver' => 'mysql',
-        'prefix' => '',
+        'port'     => '#{node['drupal']['db']['port']}',
+        'driver'   => '#{node['drupal']['db']['diver']}',
+        'prefix'   => '#{node['drupal']['db']['prefix']}',
       ),
     ),
   );

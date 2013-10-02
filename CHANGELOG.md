@@ -1,3 +1,7 @@
+## v1.1.9:
+
+* Standardize the default[:drupal][:db] array
+
 ## v1.1.8:
 
 * Set Drupal docroot permissions correctly

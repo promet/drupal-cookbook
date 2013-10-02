@@ -22,20 +22,27 @@ default['drupal']['version'] = "7.23"
 default['drupal']['dir'] = "/var/www/drupal"
 default['drupal']['owner'] = "root"
 default['drupal']['group'] = "root"
+
+default['drupal']['db']['driver'] = "mysql"
 default['drupal']['db']['database'] = "drupal"
 default['drupal']['db']['user'] = "drupal"
 default['drupal']['db']['host'] = "localhost"
+default['drupal']['db']['port'] = "3306"
+default['drupal']['db']['prefix'] = ""
+#default['drupal']['db']['password'] = "localhost"
+set_unless['drupal']['db']['password'] = secure_password
+
 default['drupal']['site']['admin'] = "admin"
 default['drupal']['site']['pass'] = "drupaladmin"
 default['drupal']['site']['name'] = "Drupal7"
 default['drupal']['site']['host'] = "localhost"
+
 default['drupal']['apache']['port'] = "80"
 default['drupal']['server_name'] = fqdn
 default['drupal']['web_app']['enable'] = true
 
 ::Chef::Node.send(:include, Opscode::OpenSSL::Password)
 
-set_unless['drupal']['db']['password'] = secure_password
 default['drupal']['src'] = Chef::Config[:file_cache_path]
 
 default['drupal']['drush']['recipe'] = "own"
