@@ -80,7 +80,7 @@ directory "#{node['drupal']['dir']}" do
 end
 
 bash "set-path-permissions" do
-  code "dir=#{node['drupal']['dir']} ; while test "/" != "$dir" ; do echo chmod 755 $dir ; dir=$(dirname $dir) ; done"
+  code "dir=#{node['drupal']['dir']} ; while test \"/\" != \"$dir\" ; do echo chmod 755 $dir ; dir=$(dirname $dir) ; done"
   action :nothing
   notifies :run, "execute[unpack-drupal]", :immediately
 end
