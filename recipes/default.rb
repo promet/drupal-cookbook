@@ -76,6 +76,12 @@ directory "#{node['drupal']['dir']}" do
   mode "0755"
   action :create
   recursive true
+  notifies :run, "bash[set-path-permissions]", :immediately
+end
+
+bash "set-path-permissions" do
+  code "dir=#{node['drupal']['dir']} ; while test "/" != "$dir" ; do echo chmod 755 $dir ; dir=$(dirname $dir) ; done"
+  action :nothing
   notifies :run, "execute[unpack-drupal]", :immediately
 end
 

@@ -1,3 +1,12 @@
+Drupal Cookbook CHANGELOG
+======================
+This file is used to list changes made in each version of the drupal cookbook.
+
+## v1.1.11
+------
+### Bug
+- Set rx on all directories of the DocumentRoot path
+
 ## v1.1.10:
 
 * Finetune the Drupal docroot file and directory permissions
