@@ -92,26 +92,19 @@ execute "unpack-drupal" do
   #only_if "mysql -h #{node['drupal']['db']['host']} -u root -p#{node['mysql']['server_root_password']} --silent --skip-column-names --execute=\"show databases like '#{node['drupal']['db']['database']}'\" | grep #{node['drupal']['db']['database']}"
   action :run
   notifies :create, "directory[#{node['drupal']['dir']}/sites/default/files]", :immediately
-  notifies :create, "file[#{node['drupal']['dir']}/sites/default/settings.php]", :immediately
+  #notifies :create, "file[#{node['drupal']['dir']}/sites/default/settings.php]", :immediately
   notifies :run, "execute[#{node['drupal']['dir']}-permissions]", :immediately
 end
 
 # Override the settings file for local configuration.
 if node['drupal']['sites']['default']['settings']['template']
-  file "#{node['drupal']['dir']}/sites/default/settings.php" do
-    content "<?php
-# template[#{node['drupal']['dir']}/sites/default/settings.php]
-"
-    action :nothing
-    notifies :create, "template[#{node['drupal']['dir']}/sites/default/settings.php]", :immediately
-  end
   template "#{node['drupal']['dir']}/sites/default/settings.php" do
     cookbook node['drupal']['sites']['default']['settings']['cookbook']
     source node['drupal']['sites']['default']['settings']['template']
     mode 0644
     owner node['drupal']['owner']
     group node['drupal']['group']
-    action :nothing
+    action :create_if_missing
     notifies :run, "execute[configure-drupal]", :immediately
   end
 else
@@ -135,7 +128,7 @@ else
   );
 
   "
-    action :nothing
+    action :create_if_missing
     only_if "test -d #{node['drupal']['dir']}"
     notifies :run, "execute[configure-drupal]", :immediately
   end

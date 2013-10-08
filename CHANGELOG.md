@@ -2,6 +2,11 @@ Drupal Cookbook CHANGELOG
 ======================
 This file is used to list changes made in each version of the drupal cookbook.
 
+## v1.1.12
+------
+### Improvement
+- Creating the settings.php based on Drupal unpack chain has pitfalls. Let's just create it if it is missing.
+
 ## v1.1.11
 ------
 ### Bug
