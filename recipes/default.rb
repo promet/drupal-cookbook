@@ -134,19 +134,14 @@ else
   end
 end
 
-# Verify the existence of the #{node['drupal']['dir']}/sites/default folder
-#if File.directory?("#{node['drupal']['dir']}/sites/default")
-#else
-#  Chef::Log.fatal("#{node['drupal']['dir']}/sites/default is missing!")
-#end
-
+# [2013-10-08 Christo] This will fail in a weird way if the credentials in the settings.php don't work!
 cfg_drupal = execute "configure-drupal" do
   cwd  File.dirname(node['drupal']['dir'])
   command "#{node['drupal']['drush']['dir']}/drush -y site-install -r #{node['drupal']['dir']} --account-name=#{node['drupal']['site']['admin']} --account-pass=#{node['drupal']['site']['pass']} --site-name=\"#{node['drupal']['site']['name']}\"  "
-  not_if "#{node['drupal']['drush']['dir']}/drush -r #{node['drupal']['dir']} status | grep #{node['drupal']['version']}"
+  #not_if "#{node['drupal']['drush']['dir']}/drush -r #{node['drupal']['dir']} status | grep #{node['drupal']['version']}"
   only_if "test -d #{node['drupal']['dir']}"
   action :nothing
-  notifies :restart, "service[apache2]", :delayed
+  notifies :restart, "service[apache2]", :immediately
 end
 
 hostsfile_entry "#{node[:ipaddress]}" do
@@ -200,23 +195,6 @@ else
   server_fqdn = node['fqdn']
 end
 
-modules = {}
-if node['drupal']['modules']
-  node['drupal']['modules'].each do |m|
-    if m.is_a?Array
-      modules[m] = drupal_module m.first do
-        version m.last
-        dir node['drupal']['dir']
-      end
-    else
-      modules[m] = drupal_module m do
-        dir node['drupal']['dir']
-      end
-    end
-  end
-
-end
-
 web_app_enable = (node['drupal']['web_app']['enable'] and !!node['drupal']['web_app']['enable'] == node['drupal']['web_app']['enable']) ? node['drupal']['web_app']['enable'] : node['drupal']['web_app']['enable'].downcase.match(%r/true|1|on|enable|yes/)
 web_app "drupal" do
   template "drupal.conf.erb"
@@ -234,11 +212,22 @@ execute "disable-default-site" do
   only_if do File.exists? "#{node['apache']['dir']}/sites-enabled/default" end
 end
 
-if cfg_drupal.updated_by_last_action?
-  unless File.exist?("#{node['drupal']['dir']}/sites/default/files/settings.php")
-    Chef::Log.fatal "#{node['drupal']['dir']}/sites/default/files/settings.php is not available!"
+unless File.exist?("#{node['drupal']['dir']}/sites/default/files/settings.php")
+  Chef::Log.fatal "#{node['drupal']['dir']}/sites/default/files/settings.php is not available!"
+end
+
+modules = {}
+if node['drupal']['modules']
+  node['drupal']['modules'].each do |m|
+    if m.is_a?Array
+      modules[m] = drupal_module m.first do
+        version m.last
+        dir node['drupal']['dir']
+      end
+    else
+      modules[m] = drupal_module m do
+        dir node['drupal']['dir']
+      end
+    end
   end
-  modules.each{ |m,r|
-    r.run_action(:run)
-  }
 end

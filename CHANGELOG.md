@@ -2,6 +2,11 @@ Drupal Cookbook CHANGELOG
 ======================
 This file is used to list changes made in each version of the drupal cookbook.
 
+## v1.1.13
+------
+### Improvement
+- Modules will not install until the site-install is complete and was successful
+
 ## v1.1.12
 ------
 ### Improvement
