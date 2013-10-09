@@ -94,8 +94,12 @@ execute "unpack-drupal" do
   notifies :create, "directory[#{node['drupal']['dir']}/sites/default/files]", :immediately
   #notifies :create, "file[#{node['drupal']['dir']}/sites/default/settings.php]", :immediately
   notifies :run, "execute[#{node['drupal']['dir']}-permissions]", :immediately
+  notifies :run, "execute[configure-drupal]", :immediately
 end
 
+if node['drupal']['sites']['default']['settings']['action'].is_a?(String)
+  node.set[:drupal][:sites][:default][:settings][:action] = node['drupal']['sites']['default']['settings']['action'].to_sym
+end
 # Override the settings file for local configuration.
 if node['drupal']['sites']['default']['settings']['template']
   template "#{node['drupal']['dir']}/sites/default/settings.php" do
@@ -104,8 +108,7 @@ if node['drupal']['sites']['default']['settings']['template']
     mode 0644
     owner node['drupal']['owner']
     group node['drupal']['group']
-    action :create_if_missing
-    notifies :run, "execute[configure-drupal]", :immediately
+    action node['drupal']['sites']['default']['settings']['action']
   end
 else
   file "#{node['drupal']['dir']}/sites/default/settings.php" do
@@ -128,9 +131,8 @@ else
   );
 
   "
-    action :create_if_missing
+    action node['drupal']['sites']['default']['settings']['action']
     only_if "test -d #{node['drupal']['dir']}"
-    notifies :run, "execute[configure-drupal]", :immediately
   end
 end
 

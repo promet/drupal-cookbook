@@ -54,3 +54,4 @@ default['drupal']['modules'] = ["ctools", "views", "webform"]
 
 default['drupal']['sites']['default']['settings']['template'] = false
 default['drupal']['sites']['default']['settings']['cookbook'] = 'drupal'
+default['drupal']['sites']['default']['settings']['action']   = 'create_if_missing'
