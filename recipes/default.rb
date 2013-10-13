@@ -214,8 +214,8 @@ execute "disable-default-site" do
   only_if do File.exists? "#{node['apache']['dir']}/sites-enabled/default" end
 end
 
-unless File.exist?("#{node['drupal']['dir']}/sites/default/files/settings.php")
-  Chef::Log.fatal "#{node['drupal']['dir']}/sites/default/files/settings.php is not available!"
+unless File.exist?("#{node['drupal']['dir']}/sites/default/settings.php")
+  Chef::Log.fatal "#{node['drupal']['dir']}/sites/default/settings.php is not available!"
 end
 
 modules = {}

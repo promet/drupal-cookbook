@@ -2,6 +2,11 @@ Drupal Cookbook CHANGELOG
 ======================
 This file is used to list changes made in each version of the drupal cookbook.
 
+## v1.1.15
+------
+### Bug
+- Fix fatal log for sites/default/settings.php from sites/default/files/settings.php
+
 ## v1.1.14
 ------
 ### Improvement
