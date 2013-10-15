@@ -2,6 +2,11 @@ Drupal Cookbook CHANGELOG
 ======================
 This file is used to list changes made in each version of the drupal cookbook.
 
+## v1.1.17
+------
+### Improvement
+- Refuse to (re)install the site when the database host is not 127.0.0.1. We do NOT want to wipe out content!
+
 ## v1.1.16
 ------
 ### Bug

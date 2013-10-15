@@ -137,12 +137,21 @@ else
   end
 end
 
+if (node[:drupal][:db][:host] != '127.0.0.1') and (node[:drupal][:db][:host_safety_override] != 'yes')
+  log 'cowardly-refuse-non-localhost-db' do
+    message "I cowardly refuse to (re)install your Drupal site when the database is not hosted locally."
+    level :error
+  end
+end
+
 # [2013-10-08 Christo] This will fail in a weird way if the credentials in the settings.php don't work!
 cfg_drupal = execute "configure-drupal" do
   cwd  File.dirname(node['drupal']['dir'])
   command "#{node['drupal']['drush']['dir']}/drush -y site-install -r #{node['drupal']['dir']} --account-name=#{node['drupal']['site']['admin']} --account-pass=#{node['drupal']['site']['pass']} --site-name=\"#{node['drupal']['site']['name']}\"  "
   #not_if "#{node['drupal']['drush']['dir']}/drush -r #{node['drupal']['dir']} status | grep #{node['drupal']['version']}"
   only_if "test -d #{node['drupal']['dir']}"
+  # [2013-10-15 Christo] Please note that for mysql 127.0.0.1 and localhost are not EXACTLY the same thing ... We use the IP address with careful intent.
+  only_if { (node[:drupal][:db][:host] == '127.0.0.1') or (node[:drupal][:db][:host_safety_override] == 'yes') }
   action :nothing
   notifies :restart, "service[apache2]", :immediately
 end
