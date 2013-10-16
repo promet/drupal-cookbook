@@ -89,10 +89,8 @@ execute "unpack-drupal" do
   cwd  File.dirname(node['drupal']['dir'])
   command "#{node['drupal']['drush']['dir']}/drush -y dl drupal-#{node['drupal']['version']} --destination=#{File.dirname(node['drupal']['dir'])} --drupal-project-rename=#{File.basename(node['drupal']['dir'])}"
   not_if "#{node['drupal']['drush']['dir']}/drush -r #{node['drupal']['dir']} status | grep #{node['drupal']['version']}"
-  #only_if "mysql -h #{node['drupal']['db']['host']} -u root -p#{node['mysql']['server_root_password']} --silent --skip-column-names --execute=\"show databases like '#{node['drupal']['db']['database']}'\" | grep #{node['drupal']['db']['database']}"
   action :run
   notifies :create, "directory[#{node['drupal']['dir']}/sites/default/files]", :immediately
-  #notifies :create, "file[#{node['drupal']['dir']}/sites/default/settings.php]", :immediately
   notifies :run, "execute[#{node['drupal']['dir']}-permissions]", :immediately
 end
 
@@ -148,8 +146,8 @@ end
 cfg_drupal = execute "configure-drupal" do
   cwd  File.dirname(node['drupal']['dir'])
   command "#{node['drupal']['drush']['dir']}/drush -y site-install -r #{node['drupal']['dir']} --account-name=#{node['drupal']['site']['admin']} --account-pass=#{node['drupal']['site']['pass']} --site-name=\"#{node['drupal']['site']['name']}\"  "
-  #not_if "#{node['drupal']['drush']['dir']}/drush -r #{node['drupal']['dir']} status | grep #{node['drupal']['version']}"
   only_if "test -d #{node['drupal']['dir']}"
+  not_if %(mysql -h #{node['drupal']['db']['host']} -u root -p#{node['mysql']['server_root_password']} --silent --skip-column-names --execute="select * from variable where name = 'drupal_http_request_fails';" #{node['drupal']['db']['database']})
   # [2013-10-15 Christo] Please note that for mysql 127.0.0.1 and localhost are not EXACTLY the same thing ... We use the IP address with careful intent.
   only_if { (node[:drupal][:db][:host] == '127.0.0.1') or (node[:drupal][:db][:host_safety_override] == 'yes') }
   action :nothing

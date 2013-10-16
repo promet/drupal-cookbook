@@ -2,6 +2,11 @@ Drupal Cookbook CHANGELOG
 ======================
 This file is used to list changes made in each version of the drupal cookbook.
 
+## v1.1.18
+------
+### Bug
+- Prevent site-install from being triggered repeatedly!
+
 ## v1.1.17
 ------
 ### Improvement
