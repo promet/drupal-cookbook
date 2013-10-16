@@ -41,11 +41,7 @@ if node['drupal']['db']['driver'] == 'mysql'
   execute "create #{node['drupal']['db']['database']} database" do
     command "/usr/bin/mysqladmin -h #{node['drupal']['db']['host']} -u root -p#{node['mysql']['server_root_password']} create #{node['drupal']['db']['database']}"
     not_if "mysql -h #{node['drupal']['db']['host']} -u root -p#{node['mysql']['server_root_password']} --silent --skip-column-names --execute=\"show databases like '#{node['drupal']['db']['database']}'\" | grep #{node['drupal']['db']['database']}"
-  end
-
-  execute "mysql-install-drupal-privileges" do
-    command "/usr/bin/mysql -h #{node['drupal']['db']['host']} -u root -p#{node['mysql']['server_root_password']} < /etc/mysql/drupal-grants.sql"
-    action :nothing
+    notifies :create, "template[/etc/mysql/drupal-grants.sql]", :immediately
   end
 
   template "/etc/mysql/drupal-grants.sql" do
@@ -58,10 +54,17 @@ if node['drupal']['db']['driver'] == 'mysql'
         :user     => node['drupal']['db']['user'],
         :password => node['drupal']['db']['password'],
         :database => node['drupal']['db']['database'],
-        :host => node['drupal']['site']['host']
+        :host     => node['drupal']['db']['host']
     )
     notifies :run, "execute[mysql-install-drupal-privileges]", :immediately
+    action :create
   end
+
+  execute "mysql-install-drupal-privileges" do
+    command "/usr/bin/mysql -h #{node['drupal']['db']['host']} -u root -p#{node['mysql']['server_root_password']} < /etc/mysql/drupal-grants.sql"
+    action :nothing
+  end
+
 else
   log "drupal-database-driver" do
     message "You database driver (#{node['drupal']['db']['driver']}) is not supported here!"

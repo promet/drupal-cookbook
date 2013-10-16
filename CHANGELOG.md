@@ -2,6 +2,11 @@ Drupal Cookbook CHANGELOG
 ======================
 This file is used to list changes made in each version of the drupal cookbook.
 
+## v1.1.19
+------
+### Improvement
+- Notify mysql grants creation
+
 ## v1.1.18
 ------
 ### Bug
