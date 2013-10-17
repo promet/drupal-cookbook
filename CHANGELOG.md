@@ -2,6 +2,12 @@ Drupal Cookbook CHANGELOG
 ======================
 This file is used to list changes made in each version of the drupal cookbook.
 
+## v1.1.20
+------
+### Improvement
+- Support Drupal 6
+- Support stripping comments out of settings.php
+
 ## v1.1.19
 ------
 ### Improvement
