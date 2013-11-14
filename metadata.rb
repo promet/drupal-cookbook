@@ -13,11 +13,12 @@ recipe           "drupal::firewall",\
   "Opens up an interface and ports for http and https on the firewall"
 
 %w{php apache2 mysql openssl firewall cron
-  nginx php-fpm postgresql postfix
+  php-fpm postgresql postfix
 }.each do |cb|
   depends cb
 end
 
+depends 'nginx', '>= 2.0'
 
 %w{ debian ubuntu }.each do |os|
   supports os
