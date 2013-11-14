@@ -1,5 +1,5 @@
-#
 # Author:: Marius Ducea (marius@promethost.com)
+# Contributor:: Gabor Bognar (gbognar@seisachtheia.com)
 # Cookbook Name:: drupal
 # Attributes:: drupal
 #
@@ -18,25 +18,64 @@
 # limitations under the License.
 #
 
-default['drupal']['version'] = "7.18"
-default['drupal']['dir'] = "/var/www/drupal"
-default['drupal']['db']['database'] = "drupal"
-default['drupal']['db']['user'] = "drupal"
-default['drupal']['db']['host'] = "localhost"
-default['drupal']['site']['admin'] = "admin"
-default['drupal']['site']['pass'] = "drupaladmin"
-default['drupal']['site']['name'] = "Drupal7"
-default['drupal']['site']['host'] = "localhost"
-default['drupal']['apache']['port'] = "80"
+default['drupal']['webserver'] = 'apache'
+default['drupal']['port'] = '80'
+default['drupal']['db']['type'] = 'mysql'
+
+default['with_postfix'] = true
+default['with_cron'] = true
+
+default['drupal']['version'] = '7.22'
+default['drupal']['dir'] = '/var/www/drupal'
+default['drupal']['db']['database'] = 'drupal'
+default['drupal']['db']['user'] = 'drupal'
+default['drupal']['db']['host'] = 'localhost'
+
+default['drupal']['site']['admin'] = 'admin'
+default['drupal']['site']['pass'] = 'drupaladmin'
+default['drupal']['site']['name'] = 'Drupal7'
+default['drupal']['site']['host'] = 'localhost'
+
+default['drupal']['modules'] = ['views', 'webform']
+
+default['drupal']['nginx']['user'] = 'vagrant'
+default['drupal']['nginx']['group'] = 'vagrant'
+default['drupal']['nginx']['location'] = '/'
+
+default['php-fpm']['pools'] = ['drupal']
+
+default['php-fpm']['pool']['drupal']['user'] = 'vagrant'
+default['php-fpm']['pool']['drupal']['group'] = 'vagrant'
+default['php-fpm']['pool']['drupal']['listen'] = '/var/run/php-fpm-drupal.sock'
+default['php-fpm']['pool']['drupal']['allowed_clients'] = []
+default['php-fpm']['pool']['drupal']['process_manager'] = 'dynamic'
+default['php-fpm']['pool']['drupal']['max_children'] = 5
+default['php-fpm']['pool']['drupal']['start_servers'] = 2
+default['php-fpm']['pool']['drupal']['min_spare_servers'] = 1
+default['php-fpm']['pool']['drupal']['max_spare_servers'] = 3
+default['php-fpm']['pool']['drupal']['max_requests'] = 500
 
 ::Chef::Node.send(:include, Opscode::OpenSSL::Password)
 
 set_unless['drupal']['db']['password'] = secure_password
 default['drupal']['src'] = Chef::Config[:file_cache_path]
 
-default['drupal']['drush']['version'] = "7.x-5.8"
-default['drupal']['drush']['checksum'] = "15dd85f04c49b4a896b02dd6960d3140f3ae680bab3eea5d3aba27be0481e480"
-default['drupal']['drush']['dir'] = "/usr/local/drush"
+default['drupal']['drush']['version'] = '7.x-5.9'
+default['drupal']['drush']['checksum'] = \
+  '3acc2a2491fef987c17e85122f7d3cd0bc99cefd1bc70891ec3a1c4fd51dcceer'
+default['drupal']['drush']['dir'] = '/usr/local/drush'
 
-default['drupal']['modules'] = ["views", "webform"]
 
+if default['php-fpm']['pool']['drupal']['listen'].start_with?('/')
+  # Listen to unix pipes
+  default['drupal']['nginx']['fast_cgi_pass'] = \
+    "unix:#{default['php-fpm']['pool']['drupal']['listen']}"
+else
+  default['drupal']['nginx']['fast_cgi_pass'] = \
+    default['php-fpm']['pool']['drupal']['listen']
+end
+
+
+default['drupal']['apache']['port'] = default['drupal']['port']
+default['drupal']['nginx']['port'] = default['drupal']['port']
+default['nginx']['default_site_enabled'] = false

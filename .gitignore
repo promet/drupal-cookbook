@@ -5,4 +5,8 @@ tmp/
 .kitchen
 *.swp
 .rvmrc
+# Vagrant
+.vagrant
+# The mysite/ directory used with Vagrant
+mysite
 

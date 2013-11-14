@@ -1,0 +1,42 @@
+# Generated from drupal.conf.nginx.erb
+#
+# For additional tuning, see
+#   http://wiki.nginx.org/Drupal
+#   and
+#   https://github.com/perusio/drupal-with-nginx
+server {
+  # The host name to respond to
+  server_name <%= @server_name %>;
+  listen <%= @server_port %>; # for Linux
+
+
+  # Optional path for static files
+  # root /sites/example.com/public;
+  root <%= @location_root %>;
+
+  #Specify a charset
+  charset utf-8;
+
+  # Added to support the import of large files
+  client_max_body_size 2M;
+  location <%= @location %> {
+      # This is cool because no php is touched for static content
+      try_files $uri @rewrite;
+  } # location /
+
+  location @rewrite {
+    # Clean URLs are handled in drupal_environment_initialize().
+    rewrite ^ /index.php;
+  } # location @rewrite
+
+  location ~ \.php$ {
+    fastcgi_split_path_info ^(.+\.php)(/.+)$;
+    #NOTE: You should have "cgi.fix_pathinfo = 0;" in php.ini
+    include fastcgi_params;
+    fastcgi_param SCRIPT_FILENAME $request_filename;
+    fastcgi_intercept_errors on;
+    fastcgi_pass <%= @fast_cgi_pass %>;
+
+  } # location ~ \.php$
+
+} # server
