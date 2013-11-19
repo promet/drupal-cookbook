@@ -88,17 +88,8 @@ bash "set-path-permissions" do
   notifies :run, "execute[unpack-drupal]", :immediately
 end
 
-execute "unpack-drupal" do
-  cwd  File.dirname(node['drupal']['dir'])
-  command "#{node['drupal']['drush']['dir']}/drush -y dl drupal-#{node['drupal']['version']} --destination=#{File.dirname(node['drupal']['dir'])} --drupal-project-rename=#{File.basename(node['drupal']['dir'])}"
-  not_if "#{node['drupal']['drush']['dir']}/drush -r #{node['drupal']['dir']} status | grep #{node['drupal']['version']}"
-  action :run
-  notifies :create, "directory[#{node['drupal']['dir']}/sites/default/files]", :immediately
-  notifies :run, "execute[#{node['drupal']['dir']}-permissions]", :immediately
-end
-
 if node['drupal']['sites']['default']['settings']['action'].is_a?(String)
-  node.set[:drupal][:sites][:default][:settings][:action] = node['drupal']['sites']['default']['settings']['action'].to_sym
+	node.set[:drupal][:sites][:default][:settings][:action] = node['drupal']['sites']['default']['settings']['action'].to_sym
 end
 
 #if node[:drupal][:version].match(%r/^6/)
@@ -107,8 +98,21 @@ settings_php = "#{node['drupal']['dir']}/sites/default/settings.php"
 #  settings_php = "/tmp/settings.php"
 #end
 
+execute "unpack-drupal" do
+	cwd  File.dirname(node['drupal']['dir'])
+	command "#{node['drupal']['drush']['dir']}/drush -y dl drupal-#{node['drupal']['version']} --destination=#{File.dirname(node['drupal']['dir'])} --drupal-project-rename=#{File.basename(node['drupal']['dir'])}"
+	not_if "#{node['drupal']['drush']['dir']}/drush -r #{node['drupal']['dir']} status | grep #{node['drupal']['version']}"
+	#not_if { File.exists?(settings_php)}
+	not_if { File.directory?("#{node['drupal']['dir']}/sites/default/files")}
+	action :run
+	notifies :create, "directory[#{node['drupal']['dir']}/sites/default/files]", :immediately
+	notifies :run, "execute[#{node['drupal']['dir']}-permissions]", :immediately
+end
+
 do_action = :create_if_missing
-if node[:drupal][:site_install][:force] == 'yes'
+if node.set[:drupal][:sites][:default][:settings][:action]
+	do_action = node.set[:drupal][:sites][:default][:settings][:action]
+elsif node[:drupal][:site_install][:force] == 'yes'
 	do_action = :create
 end
 # Override the settings file for local configuration.
@@ -119,7 +123,6 @@ if node['drupal']['sites']['default']['settings']['template']
     mode 0644
     owner node['drupal']['owner']
     group node['drupal']['group']
-    action node['drupal']['sites']['default']['settings']['action']
     notifies :run, "execute[cleanup-settings-php]", :immediately
     action do_action
   end
