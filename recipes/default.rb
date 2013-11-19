@@ -107,6 +107,10 @@ settings_php = "#{node['drupal']['dir']}/sites/default/settings.php"
 #  settings_php = "/tmp/settings.php"
 #end
 
+do_action = :create_if_missing
+if node[:drupal][:site_install][:force] == 'yes'
+	do_action = :create
+end
 # Override the settings file for local configuration.
 if node['drupal']['sites']['default']['settings']['template']
   template settings_php do
@@ -117,7 +121,7 @@ if node['drupal']['sites']['default']['settings']['template']
     group node['drupal']['group']
     action node['drupal']['sites']['default']['settings']['action']
     notifies :run, "execute[cleanup-settings-php]", :immediately
-    action :create_if_missing
+    action do_action
   end
 else
   file settings_php do
