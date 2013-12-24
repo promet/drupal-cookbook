@@ -18,25 +18,40 @@
 # limitations under the License.
 #
 
-default['drupal']['version'] = "7.18"
+default['drupal']['version'] = "7.23"
 default['drupal']['dir'] = "/var/www/drupal"
+default['drupal']['owner'] = "root"
+default['drupal']['group'] = "root"
+
+default['drupal']['db']['driver'] = "mysql"
 default['drupal']['db']['database'] = "drupal"
 default['drupal']['db']['user'] = "drupal"
 default['drupal']['db']['host'] = "localhost"
+default['drupal']['db']['port'] = "3306"
+default['drupal']['db']['prefix'] = ""
+#default['drupal']['db']['password'] = "localhost"
+
+::Chef::Node.send(:include, Opscode::OpenSSL::Password)
+set_unless['drupal']['db']['password'] = secure_password
+
 default['drupal']['site']['admin'] = "admin"
 default['drupal']['site']['pass'] = "drupaladmin"
 default['drupal']['site']['name'] = "Drupal7"
 default['drupal']['site']['host'] = "localhost"
+
 default['drupal']['apache']['port'] = "80"
+default['drupal']['server_name'] = fqdn
+default['drupal']['web_app']['enable'] = true
 
-::Chef::Node.send(:include, Opscode::OpenSSL::Password)
-
-set_unless['drupal']['db']['password'] = secure_password
 default['drupal']['src'] = Chef::Config[:file_cache_path]
 
+default['drupal']['drush']['recipe'] = "own"
 default['drupal']['drush']['version'] = "7.x-5.8"
 default['drupal']['drush']['checksum'] = "15dd85f04c49b4a896b02dd6960d3140f3ae680bab3eea5d3aba27be0481e480"
 default['drupal']['drush']['dir'] = "/usr/local/drush"
 
-default['drupal']['modules'] = ["views", "webform"]
+default['drupal']['modules'] = ["ctools", "views", "webform"]
 
+default['drupal']['sites']['default']['settings']['template'] = false
+default['drupal']['sites']['default']['settings']['cookbook'] = 'drupal'
+default['drupal']['sites']['default']['settings']['action']   = 'create_if_missing'
