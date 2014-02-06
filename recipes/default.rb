@@ -81,6 +81,17 @@ directory "#{node['drupal']['dir']}/sites/default/files" do
   action :create
 end
 
+template "#{node['drupal']['dir']}/sites/default/settings.php" do
+  source "d#{node['drupal']['version'][0..0]}.settings.php.erb"
+  mode "0644"
+  variables(
+    'database'        => node['drupal']['db']['database'],
+    'user'            => node['drupal']['db']['user'],
+    'password'        => node['drupal']['db']['password'],
+    'host'            => node['drupal']['db']['host']
+  )
+end
+
 if node['drupal']['modules']
   node['drupal']['modules'].each do |m|
     if m.is_a?Array
